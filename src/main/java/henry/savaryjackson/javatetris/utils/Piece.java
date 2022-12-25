@@ -11,9 +11,11 @@ public class Piece {
     
     private tetrominoes tetr;
     
+    private int cX, xY;
     
-    public Piece(){
-	
+    
+    public Piece(tetrominoes t){
+	tetr = t;
     }
 
     public tetrominoes getTetr() {
