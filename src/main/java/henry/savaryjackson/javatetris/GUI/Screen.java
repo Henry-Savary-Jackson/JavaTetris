@@ -34,8 +34,6 @@ public class Screen extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         lblLines = new javax.swing.JLabel();
-        tetrisGrid1 = new henry.savaryjackson.javatetris.GUI.TetrisGrid(5,6);
-        tetrisScreen1 = new henry.savaryjackson.javatetris.GUI.TetrisScreen(10,24);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -61,77 +59,41 @@ public class Screen extends javax.swing.JFrame {
 
         lblLines.setText("Lines:");
 
-        javax.swing.GroupLayout tetrisGrid1Layout = new javax.swing.GroupLayout(tetrisGrid1);
-        tetrisGrid1.setLayout(tetrisGrid1Layout);
-        tetrisGrid1Layout.setHorizontalGroup(
-            tetrisGrid1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-        tetrisGrid1Layout.setVerticalGroup(
-            tetrisGrid1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 100, Short.MAX_VALUE)
-        );
-
         javax.swing.GroupLayout lblScoreLayout = new javax.swing.GroupLayout(lblScore);
         lblScore.setLayout(lblScoreLayout);
         lblScoreLayout.setHorizontalGroup(
             lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblScoreLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                    .addGroup(lblScoreLayout.createSequentialGroup()
-                        .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel3)
-                            .addComponent(lblPreviewGrid)
-                            .addComponent(btnStop)
-                            .addComponent(btnPlay))
-                        .addGap(70, 70, 70))
-                    .addGroup(lblScoreLayout.createSequentialGroup()
-                        .addComponent(jLabel4)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(lblLevel)
-                        .addGap(107, 107, 107))))
             .addGroup(lblScoreLayout.createSequentialGroup()
+                .addGap(60, 60, 60)
                 .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(lblScoreLayout.createSequentialGroup()
-                        .addGap(63, 63, 63)
-                        .addComponent(lblLines))
-                    .addGroup(lblScoreLayout.createSequentialGroup()
-                        .addGap(55, 55, 55)
-                        .addComponent(tetrisGrid1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(64, Short.MAX_VALUE))
+                    .addComponent(btnStop)
+                    .addComponent(btnPlay)
+                    .addComponent(lblPreviewGrid))
+                .addGap(41, 41, 41))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblScoreLayout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel3)
+                    .addComponent(lblLevel)
+                    .addComponent(lblLines, javax.swing.GroupLayout.Alignment.LEADING))
+                .addGap(63, 63, 63))
         );
         lblScoreLayout.setVerticalGroup(
             lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblScoreLayout.createSequentialGroup()
-                .addGap(17, 17, 17)
+            .addGroup(lblScoreLayout.createSequentialGroup()
+                .addGap(40, 40, 40)
                 .addComponent(lblPreviewGrid)
-                .addGap(18, 18, 18)
-                .addComponent(tetrisGrid1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19)
-                .addComponent(btnPlay)
-                .addGap(33, 33, 33)
-                .addComponent(btnStop)
-                .addGap(46, 46, 46)
+                .addGap(104, 104, 104)
                 .addComponent(lblLevel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel4)
-                .addGap(61, 61, 61)
-                .addComponent(jLabel3)
-                .addGap(29, 29, 29)
                 .addComponent(lblLines)
-                .addContainerGap(112, Short.MAX_VALUE))
-        );
-
-        javax.swing.GroupLayout tetrisScreen1Layout = new javax.swing.GroupLayout(tetrisScreen1);
-        tetrisScreen1.setLayout(tetrisScreen1Layout);
-        tetrisScreen1Layout.setHorizontalGroup(
-            tetrisScreen1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 323, Short.MAX_VALUE)
-        );
-        tetrisScreen1Layout.setVerticalGroup(
-            tetrisScreen1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 0, Short.MAX_VALUE)
+                .addGap(12, 12, 12)
+                .addComponent(jLabel3)
+                .addGap(61, 61, 61)
+                .addComponent(btnPlay)
+                .addGap(18, 18, 18)
+                .addComponent(btnStop)
+                .addContainerGap(105, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -139,19 +101,15 @@ public class Screen extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(tetrisScreen1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addContainerGap(417, Short.MAX_VALUE)
                 .addComponent(lblScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(16, 16, 16))
+                .addGap(14, 14, 14))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(29, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                    .addComponent(tetrisScreen1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(lblScore, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap()
+                .addComponent(lblScore, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -184,7 +142,5 @@ public class Screen extends javax.swing.JFrame {
     private javax.swing.JLabel lblLines;
     private javax.swing.JLabel lblPreviewGrid;
     private javax.swing.JPanel lblScore;
-    private henry.savaryjackson.javatetris.GUI.TetrisGrid tetrisGrid1;
-    private henry.savaryjackson.javatetris.GUI.TetrisScreen tetrisScreen1;
     // End of variables declaration//GEN-END:variables
 }
