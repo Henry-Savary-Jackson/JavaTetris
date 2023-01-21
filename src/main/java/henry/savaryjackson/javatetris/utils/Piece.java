@@ -8,6 +8,7 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Set;
 
 public class Piece {
     public static enum tetrominoes{
@@ -19,75 +20,14 @@ public class Piece {
     public static final HashMap<tetrominoes, HashSet<int[]>> tetrStructure = createStructureMap();
    
     
-    public static HashSet<int[]> setI = new HashSet<>(Arrays.asList(
-	    new int[][]{
-		new int[]{0,3}, 
-		new int[]{0,2}, 
-		new int[]{0,1},
-		new int[]{0,0}
-		}
-	    )
-    );
-    public static HashSet<int[]> setJ = new HashSet<>(Arrays.asList(
-	    new int[][]{
-	    new int[]{-1,0}, 
-	    new int[]{0,0}, 
-	    new int[]{0,1},
-	    new int[]{0,2}
-	    }
-	    )
-    );
-    public static HashSet<int[]> setL = new HashSet<>(Arrays.asList(
-	    new int[][]{
-	    new int[]{1,0}, 
-	    new int[]{0,0}, 
-	    new int[]{0,1},
-	    new int[]{0,2}
-		    
-	    }
-	    )
-    );
-    public static HashSet<int[]> setO= new HashSet<>(Arrays.asList(
-	    new int[][]{
-	    new int[]{0,0}, 
-	    new int[]{0,-1}, 
-	    new int[]{1,0},
-	    new int[]{1,-1}
-		    
-	    }
-	    )
-    );
-    public static HashSet<int[]> setS= new HashSet<>(Arrays.asList(
-	    new int[][]{
-	    new int[]{0,0}, 
-	    new int[]{0,-1}, 
-	    new int[]{-1,0},
-	    new int[]{-1,1}
-		    
-	    }
-	    )
-    );
+    public  static HashSet<int[]> setI ;
+    public   static HashSet<int[]> setJ;
+    public  static HashSet<int[]> setL;
+    public  static HashSet<int[]> setO;
+    public  static HashSet<int[]> setS;
 	    
-    public static HashSet<int[]> setT = new HashSet<>(Arrays.asList(
-	    new int[][]{
-	    new int[]{-1,0}, 
-	    new int[]{0,0}, 
-	    new int[]{1,0},
-	    new int[]{-1,0}
-		    
-	    }
-	    )
-    );
-    public static HashSet<int[]> setZ = new HashSet<>(Arrays.asList(
-	    new int[][]{
-	    new int[]{0,0}, 
-	    new int[]{-1,0}, 
-	    new int[]{-1,-1},
-	    new int[]{0,1}
-		    
-	    }
-	    )
-    );;
+    public  static HashSet<int[]> setT ;
+    public  static HashSet<int[]> setZ; 
     
     
     private tetrominoes tetr;
@@ -108,6 +48,46 @@ public class Piece {
     }
     
     private static HashMap<tetrominoes, HashSet<int[]>>  createStructureMap(){
+	
+	setI = new HashSet<>(Arrays.asList(
+		new int[]{0,3}, 
+		new int[]{0,2}, 
+		new int[]{0,1},
+		new int[]{0,0}
+	));
+	
+	setJ = new HashSet<>(Arrays.asList( 
+		new int[]{-1,0}, 
+	    new int[]{0,0}, 
+	    new int[]{0,1},
+	    new int[]{0,2})
+	);
+	setL = new HashSet<>(Arrays.asList( new int[]{1,0}, 
+	    new int[]{0,0}, 
+	    new int[]{0,1},
+	    new int[]{0,2})
+	);
+	setO = new HashSet<>(Arrays.asList(new int[]{0,0}, 
+	    new int[]{0,-1}, 
+	    new int[]{1,0},
+	    new int[]{1,-1})
+	);
+	setS = new HashSet<>(Arrays.asList(new int[]{0,0}, 
+	    new int[]{0,-1}, 
+	    new int[]{-1,0},
+	    new int[]{-1,1})
+	);
+	setT = new HashSet<>(Arrays.asList( new int[]{-1,0}, 
+	    new int[]{0,0}, 
+	    new int[]{1,0},
+	    new int[]{-1,0})
+	);
+	setZ = new HashSet<>(Arrays.asList(new int[]{0,0}, 
+	    new int[]{-1,0}, 
+	    new int[]{-1,-1},
+	    new int[]{0,1})
+	);
+	
 	HashMap<tetrominoes, HashSet<int[]>> output = new HashMap<>();
 	output.put(tetrominoes.I, setI);
 	output.put(tetrominoes.J,setJ);
@@ -116,8 +96,6 @@ public class Piece {
 	output.put(tetrominoes.S, setS);
 	output.put(tetrominoes.T, setT);
 	output.put(tetrominoes.Z, setZ);
-	System.out.println(output.toString());
-	System.out.println(setI.toString());
 	return output;
     }
     

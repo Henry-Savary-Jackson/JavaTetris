@@ -38,14 +38,12 @@ public class TetrisGrid extends javax.swing.JPanel {
         initComponents();
 	buffer = initBuffer();
 	initTiles();
-	drawTetrominoe(tetrominoes.S, 3, 3);
+	drawTetrominoe(tetrominoes.O, 3, 3);
 	
     }
     
     public void drawTetrominoe(tetrominoes t, int cX, int cY){
 	HashSet<int[]> blocks = Piece.tetrStructure.get(t);
-	
-	System.out.println(Piece.tetrStructure.toString());
 	Color color = Piece.tetrColour.get(t);
 
 	blocks.forEach((b)->{
@@ -69,7 +67,7 @@ public class TetrisGrid extends javax.swing.JPanel {
 	int height = getHeight();
 	
 	g2.setColor(c);
-	g2.drawRect((x*tileSize)+5, (height -(y*tileSize))+5, innerTileSize, innerTileSize);
+	g2.fillRect((x*tileSize)+5, (height -(y*tileSize))+5, innerTileSize, innerTileSize);
 	
 	g2.dispose();
 	repaint(x,y, tileSize, tileSize);
@@ -81,7 +79,7 @@ public class TetrisGrid extends javax.swing.JPanel {
 	BufferedImage output = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
 	Graphics2D g2 = output.createGraphics();
 	g2.setColor(borderColour);
-	g2.drawRect(0,0, getWidth(), getHeight());
+	g2.fillRect(0,0, getWidth(), getHeight());
 	g2.dispose();
 	return output;
     }
