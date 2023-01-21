@@ -34,6 +34,7 @@ public class Screen extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         lblLines = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -59,6 +60,17 @@ public class Screen extends javax.swing.JFrame {
 
         lblLines.setText("Lines:");
 
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
         javax.swing.GroupLayout lblScoreLayout = new javax.swing.GroupLayout(lblScore);
         lblScore.setLayout(lblScoreLayout);
         lblScoreLayout.setHorizontalGroup(
@@ -68,8 +80,11 @@ public class Screen extends javax.swing.JFrame {
                 .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnStop)
                     .addComponent(btnPlay)
-                    .addComponent(lblPreviewGrid))
-                .addGap(41, 41, 41))
+                    .addGroup(lblScoreLayout.createSequentialGroup()
+                        .addComponent(lblPreviewGrid)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGap(29, 29, 29))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblScoreLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
@@ -81,9 +96,15 @@ public class Screen extends javax.swing.JFrame {
         lblScoreLayout.setVerticalGroup(
             lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(lblScoreLayout.createSequentialGroup()
-                .addGap(40, 40, 40)
-                .addComponent(lblPreviewGrid)
-                .addGap(104, 104, 104)
+                .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(lblScoreLayout.createSequentialGroup()
+                        .addGap(40, 40, 40)
+                        .addComponent(lblPreviewGrid)
+                        .addGap(104, 104, 104))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblScoreLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
                 .addComponent(lblLevel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(lblLines)
@@ -101,7 +122,7 @@ public class Screen extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(417, Short.MAX_VALUE)
+                .addContainerGap(328, Short.MAX_VALUE)
                 .addComponent(lblScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(14, 14, 14))
         );
@@ -138,6 +159,7 @@ public class Screen extends javax.swing.JFrame {
     private javax.swing.JButton btnStop;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblLevel;
     private javax.swing.JLabel lblLines;
     private javax.swing.JLabel lblPreviewGrid;

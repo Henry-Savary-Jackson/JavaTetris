@@ -8,7 +8,10 @@ package henry.savaryjackson.javatetris.GUI;
 import henry.savaryjackson.javatetris.utils.Piece;
 import java.awt.Color;
 import java.awt.Graphics;
-import java.util.HashMap;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import henry.savaryjackson.javatetris.utils.Piece.tetrominoes;
+import java.util.HashSet;
 
 /**
  *
@@ -20,28 +23,75 @@ public class TetrisGrid extends javax.swing.JPanel {
     int w,h;
     byte[][] grid;
     
-    HashMap<Piece.tetrominoes, Color> colourTable;
-    public TetrisGrid(int w , int h) {
-	grid = new byte[h][w];
-        initComponents();
-	initializeColourTable();
+    private final int tileSize = 25;
+    private final int innerTileSize =20;
+    
+    public final Color borderColour = Color.DARK_GRAY;
+    public final Color emptyColour = Color.BLACK;
+    
+    private BufferedImage buffer;
 
+    public TetrisGrid(int w , int h) {
+	grid = new byte[w][h];
+	this.setSize(w*tileSize, h*tileSize);
+	
+        initComponents();
+	buffer = initBuffer();
+	initTiles();
+	drawTetrominoe(tetrominoes.S, 3, 3);
+	
+    }
+    
+    public void drawTetrominoe(tetrominoes t, int cX, int cY){
+	HashSet<int[]> blocks = Piece.tetrStructure.get(t);
+	
+	System.out.println(Piece.tetrStructure.toString());
+	Color color = Piece.tetrColour.get(t);
+
+	blocks.forEach((b)->{
+	    int xIndex = cX + b[0];
+	    int yIndex = cY + b[1];
+	    drawTile(xIndex, yIndex , color);
+	});
     }
     
     @Override
-    public void paint(Graphics g){
-	super.paint(g);
+    public void paintComponent(Graphics g){
+	super.paintComponent(g);
+	if (buffer != null)
+	    g.drawImage(buffer , 0, 0, this);
     }
     
-    private void initializeColourTable(){
-	colourTable = new HashMap<>();
-	colourTable.put(Piece.tetrominoes.I, Color.CYAN);
-	colourTable.put(Piece.tetrominoes.J, Color.BLUE);
-	colourTable.put(Piece.tetrominoes.L, Color.ORANGE);
-	colourTable.put(Piece.tetrominoes.O, Color.YELLOW);
-	colourTable.put(Piece.tetrominoes.S, Color.GREEN);
-	colourTable.put(Piece.tetrominoes.T, Color.PINK);
-	colourTable.put(Piece.tetrominoes.Z, Color.RED);
+    public void drawTile(int x, int  y , Color c){
+	Graphics2D g2 = buffer.createGraphics();
+	
+	//draw main
+	int height = getHeight();
+	
+	g2.setColor(c);
+	g2.drawRect((x*tileSize)+5, (height -(y*tileSize))+5, innerTileSize, innerTileSize);
+	
+	g2.dispose();
+	repaint(x,y, tileSize, tileSize);
+    }
+    
+    
+    public BufferedImage initBuffer(){
+	
+	BufferedImage output = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+	Graphics2D g2 = output.createGraphics();
+	g2.setColor(borderColour);
+	g2.drawRect(0,0, getWidth(), getHeight());
+	g2.dispose();
+	return output;
+    }
+    
+    public void initTiles(){
+	for (int x = 0; x < grid.length; x++){
+	    for (int y = 0; y < grid[x].length; y++){
+		drawTile(x, y, emptyColour);
+	    }
+	}
     }
 
     /** This method is called from within the constructor to
