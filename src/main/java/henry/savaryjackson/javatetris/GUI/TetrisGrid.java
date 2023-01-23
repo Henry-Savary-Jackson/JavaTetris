@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import henry.savaryjackson.javatetris.utils.Piece.tetrominoes;
+import henry.savaryjackson.javatetris.utils.Utils;
 import java.util.HashSet;
 
 /**
@@ -23,7 +24,7 @@ public class TetrisGrid extends javax.swing.JPanel {
     int w,h;
     byte[][] grid;
     
-    private final int tileSize = 25;
+    private final int tileSize = 24;
     private final int innerTileSize =20;
     
     public final Color borderColour = Color.DARK_GRAY;
@@ -32,13 +33,14 @@ public class TetrisGrid extends javax.swing.JPanel {
     private BufferedImage buffer;
 
     public TetrisGrid(int w , int h) {
+	this.h = h;
+	this.w = w;
 	grid = new byte[w][h];
 	this.setSize(w*tileSize, h*tileSize);
 	
         initComponents();
 	buffer = initBuffer();
 	initTiles();
-	drawTetrominoe(tetrominoes.O, 3, 3);
 	
     }
     
@@ -64,13 +66,13 @@ public class TetrisGrid extends javax.swing.JPanel {
 	Graphics2D g2 = buffer.createGraphics();
 	
 	//draw main
-	int height = getHeight();
+	int height = h * tileSize;
 	
 	g2.setColor(c);
-	g2.fillRect((x*tileSize)+5, (height -(y*tileSize))+5, innerTileSize, innerTileSize);
+	g2.fillRect((x*tileSize)+2, (height -(y*tileSize)+2), innerTileSize, innerTileSize);
 	
 	g2.dispose();
-	repaint(x,y, tileSize, tileSize);
+	repaint((x*tileSize)+2, (height -(y*tileSize)+2), innerTileSize, innerTileSize);
     }
     
     
@@ -86,7 +88,7 @@ public class TetrisGrid extends javax.swing.JPanel {
     
     public void initTiles(){
 	for (int x = 0; x < grid.length; x++){
-	    for (int y = 0; y < grid[x].length; y++){
+	    for (int y = 0; y < grid[x].length +1; y++){
 		drawTile(x, y, emptyColour);
 	    }
 	}

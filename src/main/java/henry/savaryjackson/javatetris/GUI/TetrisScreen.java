@@ -1,35 +1,121 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
- */
+
 package henry.savaryjackson.javatetris.GUI;
 
-import henry.savaryjackson.javatetris.utils.KeyInput;
 import java.awt.Graphics;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import javax.swing.Timer;
+import henry.savaryjackson.javatetris.utils.Piece;
+import henry.savaryjackson.javatetris.utils.Utils;
 
 /**
  *
  * @author hsavaryjackson
  */
-public class TetrisScreen extends TetrisGrid {
+public class TetrisScreen extends TetrisGrid implements KeyListener {
 
-    KeyInput input;
     boolean paused ;
+    Timer clock;
+    Piece p;
+    
+    int delay;
+    
+    
+    private long lastKeyPress = 0;
     
     public TetrisScreen(int w, int h) {
 	super(w,h);
-	paused = true;
+	paused = false;
+	p = new Piece(Utils.randTetrominoe(),(int)(w/2), 20);
+	//this timer iswhere all of the game logic is running for the screen
+	clock = new Timer(1000, 
+	    (evt)->{		
+		if (!paused){
+		    movePiece(0, -1);
+		}
+	    }
+	);
+	clock.setInitialDelay(0);
+	clock.start();
 	initComponents();
-	input = new KeyInput();
 	
-	//keyListeners
-	addKeyListener(input);
+	//keyListener
+	setFocusable(true);
+	
+	addKeyListener(this);
+	
+	setVisible(true);
+    }
+    
+    private void movePiece(int xDiff, int yDiff){
+	clearPiece();
+	p.moveTo(grid, p.cX + xDiff, p.cY+yDiff);
+	drawPiece();
+    }
+    
+    
+    public void clearPiece(){
+	for (int[] block : p.getBlocks()){
+	    drawTile(block[0] + p.cX, block[1] + p.cY, emptyColour);
+	}
+    }
+    
+    public void drawPiece(){
+	for (int[] block : p.getBlocks()){
+	    drawTile(block[0] + p.cX, block[1] + p.cY, p.getColour());
+	}
+    }
+    
+    public void rotatePiece(Piece.ROT_DIR direction){
+	clearPiece();
+	p.rotate(grid, direction);
+	drawPiece();
+    }
+    
+    public boolean checkTop(){
+	return false;
+    }
+    
+    private boolean checkBottom(){
+	return false;
     }
     
     @Override
-    public void paint(Graphics g){
-	super.paint(g);
-	
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+	if (lastKeyPress != 0){
+	    long time = System.currentTimeMillis();
+	    long diff = time - lastKeyPress;
+	    if (diff  >= 100){
+		lastKeyPress = time;
+		switch (e.getKeyCode()){
+		    case KeyEvent.VK_UP:
+			rotatePiece(Piece.ROT_DIR.Clockwise);
+			break;
+		    case KeyEvent.VK_DOWN:
+			rotatePiece(Piece.ROT_DIR.CounterClockwise);
+			break;
+		    case KeyEvent.VK_LEFT:
+			movePiece(-1,0);
+			break;
+		    case KeyEvent.VK_RIGHT:
+			movePiece(1,0);
+			break;
+		    case KeyEvent.VK_SPACE:
+			//quick drop logic
+			break;
+		}
+	    }
+	} else{
+	    lastKeyPress = System.currentTimeMillis();
+	}
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
     }
 
     /**

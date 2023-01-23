@@ -8,27 +8,39 @@ import java.awt.Color;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class Piece {
     public static enum tetrominoes{
-	I, J, L, O, S ,T , Z
+	I, J, L, O, S ,T , Z;
+
+    }
+    
+    public static enum ROT_DIR{
+	Clockwise, CounterClockwise
     }
     
     public static final HashMap<tetrominoes, Color> tetrColour = createColourMap();
     
     public static final HashMap<tetrominoes, HashSet<int[]>> tetrStructure = createStructureMap();
    
+    private final Color colour;
     
-    public  static HashSet<int[]> setI ;
-    public   static HashSet<int[]> setJ;
-    public  static HashSet<int[]> setL;
-    public  static HashSet<int[]> setO;
-    public  static HashSet<int[]> setS;
-	    
-    public  static HashSet<int[]> setT ;
-    public  static HashSet<int[]> setZ; 
+    public static HashSet<int[]> setI;
+    public static HashSet<int[]> setJ;
+    public static HashSet<int[]> setL;
+    public static HashSet<int[]> setO;
+    public static HashSet<int[]> setS;
+    public static HashSet<int[]> setT ;
+    public static HashSet<int[]> setZ; 
     
+    //a map that stores the x position(key) and y position(value) of all the piece's blocks
+    //facing the bottom. This is useful for performing quick drops, as this can let us see 
+    //where the piece will land at quick drop
+    private SortedMap<Integer, Integer> bottomBlocks = new TreeMap<>();
+    
+    private HashSet<int[]> blocks = new HashSet<>();
     
     private tetrominoes tetr;
     
@@ -47,6 +59,16 @@ public class Piece {
 	return output;
     }
     
+    private void UpdateBottomBlocks(){
+	if (!bottomBlocks.isEmpty())
+	    getBottomBlocks().clear();
+	for (int[] block : getBlocks()){
+	    if (!blocks.contains(new int[]{block[0], block[1]-1})){
+		getBottomBlocks().put(block[0], block[1]);
+	    }
+	}
+    }
+    
     private static HashMap<tetrominoes, HashSet<int[]>>  createStructureMap(){
 	
 	setI = new HashSet<>(Arrays.asList(
@@ -58,31 +80,36 @@ public class Piece {
 	
 	setJ = new HashSet<>(Arrays.asList( 
 		new int[]{-1,0}, 
+		new int[]{0,0}, 
+		new int[]{0,1},
+		new int[]{0,2})
+	);
+	setL = new HashSet<>(Arrays.asList( 
+	    new int[]{1,0}, 
 	    new int[]{0,0}, 
 	    new int[]{0,1},
 	    new int[]{0,2})
 	);
-	setL = new HashSet<>(Arrays.asList( new int[]{1,0}, 
+	setO = new HashSet<>(Arrays.asList(
 	    new int[]{0,0}, 
-	    new int[]{0,1},
-	    new int[]{0,2})
-	);
-	setO = new HashSet<>(Arrays.asList(new int[]{0,0}, 
 	    new int[]{0,-1}, 
 	    new int[]{1,0},
 	    new int[]{1,-1})
 	);
-	setS = new HashSet<>(Arrays.asList(new int[]{0,0}, 
+	setS = new HashSet<>(Arrays.asList(
+	    new int[]{0,0}, 
 	    new int[]{0,-1}, 
 	    new int[]{-1,0},
 	    new int[]{-1,1})
 	);
-	setT = new HashSet<>(Arrays.asList( new int[]{-1,0}, 
+	setT = new HashSet<>(Arrays.asList( 
+	    new int[]{0,-1}, 
 	    new int[]{0,0}, 
 	    new int[]{1,0},
 	    new int[]{-1,0})
 	);
-	setZ = new HashSet<>(Arrays.asList(new int[]{0,0}, 
+	setZ = new HashSet<>(Arrays.asList(
+	    new int[]{0,0}, 
 	    new int[]{-1,0}, 
 	    new int[]{-1,-1},
 	    new int[]{0,1})
@@ -109,21 +136,80 @@ public class Piece {
     
     public static void rotatePointClockwise(int[] point){
 	if (!(point[0] == 0 && point[1] == 0)){
+	    
 	    int iTemp = point[0];
 	    point[0] = point[1];
 	    point[1] = -iTemp;
 	}
     }
     
+    public void moveTo( byte[][] grid, int newX, int newY){
+	for (int[] block: blocks){
+	    if (!Utils.notOutOfBounds(grid, block[0] + newX, block[1] + newY)){
+		System.out.println("out of bounds");
+		return;
+	    }
+	    if (grid[block[0] + newX][ block[1] + newY] == 1){
+		System.out.println("taken");
+		return;
+	    }
+	}
+	cX = newX;
+	cY = newY;
+    }
+    
+    public void rotate(byte[][] grid, ROT_DIR dir){
+	if (tetr ==tetrominoes.O){
+	    return;
+	}
+	
+	HashSet<int[]> blocksCopy  = new HashSet<>(getBlocks());
+	
+	for (int[] block : blocksCopy){
+		switch (dir){
+		    case Clockwise -> rotatePointClockwise( block);
+		    case CounterClockwise -> rotatePointCounterClockwise(block);
+		}
+		if (!Utils.notOutOfBounds(grid, block[0] + cX, block[1]+ cY))
+		    return;
+		if (grid[ block[0] + cX][block[1]+ cY]== 1)
+		    return;
+	}
+	blocks = blocksCopy;
+	UpdateBottomBlocks();
+    }
     
     public Piece(tetrominoes t,int  cX , int cY){
 	tetr = t;
+	colour = tetrColour.get(tetr);
+	blocks.addAll(tetrStructure.get(tetr));
 	this.cX = cX;
 	this.cY = cY;
     }
 
     public tetrominoes getTetr() {
 	return tetr;
+    }
+
+    /**
+     * @return the blocks
+     */
+    public HashSet<int[]> getBlocks() {
+	return blocks;
+    }
+
+    /**
+     * @return the bottomBlocks
+     */
+    public SortedMap<Integer, Integer> getBottomBlocks() {
+	return bottomBlocks;
+    }
+
+    /**
+     * @return the colour
+     */
+    public Color getColour() {
+	return colour;
     }
     
 }
