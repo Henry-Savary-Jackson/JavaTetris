@@ -5,9 +5,10 @@
 package henry.savaryjackson.javatetris.utils;
 
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -23,24 +24,26 @@ public class Piece {
     
     public static final HashMap<tetrominoes, Color> tetrColour = createColourMap();
     
-    public static final HashMap<tetrominoes, HashSet<int[]>> tetrStructure = createStructureMap();
+    public static final HashMap<tetrominoes, List<int[]>> tetrStructure = createStructureMap();
    
     private final Color colour;
     
-    public static HashSet<int[]> setI;
-    public static HashSet<int[]> setJ;
-    public static HashSet<int[]> setL;
-    public static HashSet<int[]> setO;
-    public static HashSet<int[]> setS;
-    public static HashSet<int[]> setT ;
-    public static HashSet<int[]> setZ; 
+    public static List<int[]> setI;
+    public static List<int[]> setJ;
+    public static List<int[]> setL;
+    public static List<int[]> setO;
+    public static List<int[]> setS;
+    public static List<int[]> setT ;
+    public static List<int[]> setZ; 
+    
+    private int[] bottomSpan = new int[2]; 
     
     //a map that stores the x position(key) and y position(value) of all the piece's blocks
     //facing the bottom. This is useful for performing quick drops, as this can let us see 
     //where the piece will land at quick drop
     private SortedMap<Integer, Integer> bottomBlocks = new TreeMap<>();
     
-    private HashSet<int[]> blocks = new HashSet<>();
+    private List<int[]> blocks = new ArrayList<>();
     
     private tetrominoes tetr;
     
@@ -60,62 +63,72 @@ public class Piece {
     }
     
     private void UpdateBottomBlocks(){
+	int xHighest = 0;
+	int xLowest = Integer.MAX_VALUE;
 	if (!bottomBlocks.isEmpty())
 	    getBottomBlocks().clear();
-	for (int[] block : getBlocks()){
-	    if (!blocks.contains(new int[]{block[0], block[1]-1})){
+	for (int[] block : blocks){
+	    if (xHighest < block[0] + cX){
+		xHighest = block[0] + cX;
+		
+	    }
+	    if (xLowest > block[0] + cX){
+		xLowest = block[0] + cX;
+	    }
+	    if (!blocks.stream().filter((p) -> p.equals(new int[]{block[0], block[0]-1})).findFirst().isPresent()){
 		getBottomBlocks().put(block[0], block[1]);
 	    }
 	}
+	bottomSpan = new int[]{xLowest -cX , xHighest -cX};
     }
     
-    private static HashMap<tetrominoes, HashSet<int[]>>  createStructureMap(){
+    private static HashMap<tetrominoes, List<int[]>>  createStructureMap(){
 	
-	setI = new HashSet<>(Arrays.asList(
+	setI =(List<int[]>) Arrays.asList(
 		new int[]{0,3}, 
 		new int[]{0,2}, 
 		new int[]{0,1},
 		new int[]{0,0}
-	));
+	);
 	
-	setJ = new HashSet<>(Arrays.asList( 
+	setJ = (List<int[]>) Arrays.asList( 
 		new int[]{-1,0}, 
 		new int[]{0,0}, 
 		new int[]{0,1},
-		new int[]{0,2})
+		new int[]{0,2}
 	);
-	setL = new HashSet<>(Arrays.asList( 
+	setL = (List<int[]>) Arrays.asList(
 	    new int[]{1,0}, 
 	    new int[]{0,0}, 
 	    new int[]{0,1},
-	    new int[]{0,2})
+	    new int[]{0,2}
 	);
-	setO = new HashSet<>(Arrays.asList(
+	setO = (List<int[]>) Arrays.asList(
 	    new int[]{0,0}, 
 	    new int[]{0,-1}, 
 	    new int[]{1,0},
-	    new int[]{1,-1})
+	    new int[]{1,-1}
 	);
-	setS = new HashSet<>(Arrays.asList(
+	setS = (List<int[]>) Arrays.asList(
 	    new int[]{0,0}, 
 	    new int[]{0,-1}, 
 	    new int[]{-1,0},
-	    new int[]{-1,1})
+	    new int[]{-1,1}
 	);
-	setT = new HashSet<>(Arrays.asList( 
+	setT = (List<int[]>) Arrays.asList( 
 	    new int[]{0,-1}, 
 	    new int[]{0,0}, 
 	    new int[]{1,0},
-	    new int[]{-1,0})
+	    new int[]{-1,0}
 	);
-	setZ = new HashSet<>(Arrays.asList(
+	setZ = (List<int[]>) Arrays.asList(
 	    new int[]{0,0}, 
 	    new int[]{-1,0}, 
 	    new int[]{-1,-1},
-	    new int[]{0,1})
+	    new int[]{0,1}
 	);
 	
-	HashMap<tetrominoes, HashSet<int[]>> output = new HashMap<>();
+	HashMap<tetrominoes, List<int[]>> output = new HashMap<>();
 	output.put(tetrominoes.I, setI);
 	output.put(tetrominoes.J,setJ);
 	output.put(tetrominoes.L, setL);
@@ -163,28 +176,38 @@ public class Piece {
 	    return;
 	}
 	
-	HashSet<int[]> blocksCopy  = new HashSet<>(getBlocks());
+	List<int[]> blocksCopy  = new ArrayList<>();
+	for (int[] block : getBlocks()){
+	    blocksCopy.add(block.clone());
+	}
 	
 	for (int[] block : blocksCopy){
+	    
 		switch (dir){
 		    case Clockwise -> rotatePointClockwise( block);
 		    case CounterClockwise -> rotatePointCounterClockwise(block);
 		}
-		if (!Utils.notOutOfBounds(grid, block[0] + cX, block[1]+ cY))
+		if (!Utils.notOutOfBounds(grid, block[0] + cX, block[1]+ cY)){
+		    System.out.println("out of bounds rot");
 		    return;
+		}
+		    
 		if (grid[ block[0] + cX][block[1]+ cY]== 1)
 		    return;
 	}
 	blocks = blocksCopy;
 	UpdateBottomBlocks();
+	System.out.println(Arrays.toString(bottomSpan));
     }
     
     public Piece(tetrominoes t,int  cX , int cY){
 	tetr = t;
 	colour = tetrColour.get(tetr);
 	blocks.addAll(tetrStructure.get(tetr));
+	
 	this.cX = cX;
 	this.cY = cY;
+	UpdateBottomBlocks();
     }
 
     public tetrominoes getTetr() {
@@ -194,7 +217,7 @@ public class Piece {
     /**
      * @return the blocks
      */
-    public HashSet<int[]> getBlocks() {
+    public List<int[]> getBlocks() {
 	return blocks;
     }
 
@@ -210,6 +233,13 @@ public class Piece {
      */
     public Color getColour() {
 	return colour;
+    }
+
+    /**
+     * @return the bottomSpan
+     */
+    public int[] getBottomSpan() {
+	return bottomSpan;
     }
     
 }

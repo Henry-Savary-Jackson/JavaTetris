@@ -11,8 +11,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import henry.savaryjackson.javatetris.utils.Piece.tetrominoes;
-import henry.savaryjackson.javatetris.utils.Utils;
-import java.util.HashSet;
+import java.util.List;
 
 /**
  *
@@ -24,8 +23,8 @@ public class TetrisGrid extends javax.swing.JPanel {
     int w,h;
     byte[][] grid;
     
-    private final int tileSize = 24;
-    private final int innerTileSize =20;
+    protected final int tileSize = 24;
+    protected final int innerTileSize =20;
     
     public final Color borderColour = Color.DARK_GRAY;
     public final Color emptyColour = Color.BLACK;
@@ -35,8 +34,8 @@ public class TetrisGrid extends javax.swing.JPanel {
     public TetrisGrid(int w , int h) {
 	this.h = h;
 	this.w = w;
-	grid = new byte[w][h];
-	this.setSize(w*tileSize, h*tileSize);
+	grid = new byte[w][h+10];
+	this.setSize(w*tileSize, (h)*tileSize);
 	
         initComponents();
 	buffer = initBuffer();
@@ -45,7 +44,7 @@ public class TetrisGrid extends javax.swing.JPanel {
     }
     
     public void drawTetrominoe(tetrominoes t, int cX, int cY){
-	HashSet<int[]> blocks = Piece.tetrStructure.get(t);
+	List<int[]> blocks = Piece.tetrStructure.get(t);
 	Color color = Piece.tetrColour.get(t);
 
 	blocks.forEach((b)->{
@@ -58,12 +57,12 @@ public class TetrisGrid extends javax.swing.JPanel {
     @Override
     public void paintComponent(Graphics g){
 	super.paintComponent(g);
-	if (buffer != null)
-	    g.drawImage(buffer , 0, 0, this);
+	if (getBuffer() != null)
+	    g.drawImage(getBuffer(), 0, 0, this);
     }
     
     public void drawTile(int x, int  y , Color c){
-	Graphics2D g2 = buffer.createGraphics();
+	Graphics2D g2 = getBuffer().createGraphics();
 	
 	//draw main
 	int height = h * tileSize;
@@ -88,7 +87,7 @@ public class TetrisGrid extends javax.swing.JPanel {
     
     public void initTiles(){
 	for (int x = 0; x < grid.length; x++){
-	    for (int y = 0; y < grid[x].length +1; y++){
+	    for (int y = 1; y < h+1; y++){
 		drawTile(x, y, emptyColour);
 	    }
 	}
@@ -114,6 +113,13 @@ public class TetrisGrid extends javax.swing.JPanel {
             .addGap(0, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    /**
+     * @return the buffer
+     */
+    public BufferedImage getBuffer() {
+	return buffer;
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
