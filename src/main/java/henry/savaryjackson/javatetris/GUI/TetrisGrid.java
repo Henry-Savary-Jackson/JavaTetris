@@ -40,7 +40,7 @@ public class TetrisGrid extends javax.swing.JPanel {
         initComponents();
 	buffer = initBuffer();
 	initTiles();
-	
+	setVisible(true);
     }
     
     public void drawTetrominoe(tetrominoes t, int cX, int cY){

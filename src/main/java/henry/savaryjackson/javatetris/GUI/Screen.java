@@ -4,17 +4,33 @@
  */
 package henry.savaryjackson.javatetris.GUI;
 
+import java.awt.Graphics;
+
 /**
  *
  * @author hsavaryjackson
  */
 public class Screen extends javax.swing.JFrame {
     boolean paused ;
+    
+    private TetrisScreen screen;
+    private TetrisGrid grid; 
+    
     /**
      * Creates new form Screen
      */
     public Screen() {
 	initComponents();
+	grid = new TetrisGrid(10,10);
+	screen = new TetrisScreen(10,24, grid, this);
+	updatePoints();
+	add(screen);
+	add(grid);
+	screen.requestFocus();
+	setDefaultCloseOperation(EXIT_ON_CLOSE);
+	setSize(900,800);
+	setVisible(true);
+	
     }
 
     /**
@@ -26,17 +42,18 @@ public class Screen extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        lblScore = new javax.swing.JPanel();
+        pnlUI = new javax.swing.JPanel();
         btnPlay = new javax.swing.JButton();
         btnStop = new javax.swing.JButton();
         lblPreviewGrid = new javax.swing.JLabel();
         lblLevel = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
+        lblScore = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         lblLines = new javax.swing.JLabel();
         jPanel1 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        getContentPane().setLayout(null);
 
         btnPlay.setText("Play");
         btnPlay.addActionListener(new java.awt.event.ActionListener() {
@@ -45,7 +62,7 @@ public class Screen extends javax.swing.JFrame {
             }
         });
 
-        btnStop.setText("Pause");
+        btnStop.setText("Quit");
         btnStop.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnStopActionPerformed(evt);
@@ -56,7 +73,7 @@ public class Screen extends javax.swing.JFrame {
 
         lblLevel.setText("Level:");
 
-        jLabel3.setText("Score:");
+        lblScore.setText("Score:");
 
         lblLines.setText("Lines:");
 
@@ -71,98 +88,89 @@ public class Screen extends javax.swing.JFrame {
             .addGap(0, 100, Short.MAX_VALUE)
         );
 
-        javax.swing.GroupLayout lblScoreLayout = new javax.swing.GroupLayout(lblScore);
-        lblScore.setLayout(lblScoreLayout);
-        lblScoreLayout.setHorizontalGroup(
-            lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(lblScoreLayout.createSequentialGroup()
+        javax.swing.GroupLayout pnlUILayout = new javax.swing.GroupLayout(pnlUI);
+        pnlUI.setLayout(pnlUILayout);
+        pnlUILayout.setHorizontalGroup(
+            pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlUILayout.createSequentialGroup()
                 .addGap(60, 60, 60)
-                .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(btnStop)
                     .addComponent(btnPlay)
-                    .addGroup(lblScoreLayout.createSequentialGroup()
-                        .addComponent(lblPreviewGrid)
+                    .addGroup(pnlUILayout.createSequentialGroup()
+                        .addGroup(pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblPreviewGrid)
+                            .addComponent(lblLevel, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblLines, javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(lblScore, javax.swing.GroupLayout.Alignment.TRAILING))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(29, 29, 29))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblScoreLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel3)
-                    .addComponent(lblLevel)
-                    .addComponent(lblLines, javax.swing.GroupLayout.Alignment.LEADING))
-                .addGap(63, 63, 63))
         );
-        lblScoreLayout.setVerticalGroup(
-            lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(lblScoreLayout.createSequentialGroup()
-                .addGroup(lblScoreLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(lblScoreLayout.createSequentialGroup()
+        pnlUILayout.setVerticalGroup(
+            pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(pnlUILayout.createSequentialGroup()
+                .addGroup(pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(pnlUILayout.createSequentialGroup()
                         .addGap(40, 40, 40)
                         .addComponent(lblPreviewGrid)
-                        .addGap(104, 104, 104))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, lblScoreLayout.createSequentialGroup()
+                        .addGap(89, 89, 89)
+                        .addComponent(lblLevel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblLines)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(lblScore)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlUILayout.createSequentialGroup()
                         .addContainerGap()
                         .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)))
-                .addComponent(lblLevel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(lblLines)
-                .addGap(12, 12, 12)
-                .addComponent(jLabel3)
-                .addGap(61, 61, 61)
+                        .addGap(142, 142, 142)))
                 .addComponent(btnPlay)
                 .addGap(18, 18, 18)
                 .addComponent(btnStop)
                 .addContainerGap(105, Short.MAX_VALUE))
         );
 
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-        layout.setHorizontalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(328, Short.MAX_VALUE)
-                .addComponent(lblScore, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(14, 14, 14))
-        );
-        layout.setVerticalGroup(
-            layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(lblScore, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addContainerGap())
-        );
+        getContentPane().add(pnlUI);
+        pnlUI.setBounds(290, 10, 262, 417);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlayActionPerformed
         // TODO add your handling code here:
-	paused = !paused;
-	if (paused)
+	screen.paused = !screen.paused;
+	if (!screen.paused)
 	    btnStop.setText("Pause"); 
+	screen.requestFocus();
     }//GEN-LAST:event_btnPlayActionPerformed
 
+    public void updatePoints(){
+	lblScore.setText(String.format("Score: %d", screen.points));
+	lblLines.setText(String.format("Lines: %d" , screen.linesCleared));
+	repaint();
+    }
+    
     private void btnStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopActionPerformed
 
-	if (paused){
+	if (screen.paused){
 	    dispose();
+	    System.exit(0);
 	}else {
 	    btnStop.setText("Quit");
-	    paused = true;
+	    screen.paused = true;
 	}
     }//GEN-LAST:event_btnStopActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPlay;
     private javax.swing.JButton btnStop;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblLevel;
     private javax.swing.JLabel lblLines;
     private javax.swing.JLabel lblPreviewGrid;
-    private javax.swing.JPanel lblScore;
+    private javax.swing.JLabel lblScore;
+    private javax.swing.JPanel pnlUI;
     // End of variables declaration//GEN-END:variables
 }

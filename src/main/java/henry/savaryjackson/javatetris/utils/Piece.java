@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.SortedMap;
-import java.util.TreeMap;
 
 public class Piece {
     public static enum tetrominoes{
@@ -41,13 +39,23 @@ public class Piece {
     //a map that stores the x position(key) and y position(value) of all the piece's blocks
     //facing the bottom. This is useful for performing quick drops, as this can let us see 
     //where the piece will land at quick drop
-    private SortedMap<Integer, Integer> bottomBlocks = new TreeMap<>();
+    private List<int[]> bottomBlocks = new ArrayList<>();
     
     private List<int[]> blocks = new ArrayList<>();
     
     private tetrominoes tetr;
     
     public int cX, cY;
+    
+    public Piece(tetrominoes t,int  cX , int cY){
+	tetr = t;
+	colour = tetrColour.get(tetr);
+	blocks.addAll(tetrStructure.get(tetr));
+	
+	this.cX = cX;
+	this.cY = cY;
+	UpdateBottomBlocks();
+    }
     
     private static HashMap<tetrominoes, Color>  createColourMap(){
 	HashMap<tetrominoes, Color> output = new HashMap<>();
@@ -66,7 +74,7 @@ public class Piece {
 	int xHighest = 0;
 	int xLowest = Integer.MAX_VALUE;
 	if (!bottomBlocks.isEmpty())
-	    getBottomBlocks().clear();
+	    bottomBlocks.clear();
 	for (int[] block : blocks){
 	    if (xHighest < block[0] + cX){
 		xHighest = block[0] + cX;
@@ -75,8 +83,8 @@ public class Piece {
 	    if (xLowest > block[0] + cX){
 		xLowest = block[0] + cX;
 	    }
-	    if (!blocks.stream().filter((p) -> p.equals(new int[]{block[0], block[0]-1})).findFirst().isPresent()){
-		getBottomBlocks().put(block[0], block[1]);
+	    if (!blocks.stream().filter((p) -> p.equals(new int[]{block[0], block[1]-1})).findFirst().isPresent()){
+		bottomBlocks.add( new int[]{block[0], block[1]});
 	    }
 	}
 	bottomSpan = new int[]{xLowest -cX , xHighest -cX};
@@ -159,7 +167,7 @@ public class Piece {
     public void moveTo( byte[][] grid, int newX, int newY){
 	for (int[] block: blocks){
 	    if (!Utils.notOutOfBounds(grid, block[0] + newX, block[1] + newY)){
-		System.out.println("out of bounds");
+		System.out.println(String.format("out of bounds at x:%d y:%d",block[0]+ newX, block[1] + newY ));
 		return;
 	    }
 	    if (grid[block[0] + newX][ block[1] + newY] == 1){
@@ -200,16 +208,6 @@ public class Piece {
 	System.out.println(Arrays.toString(bottomSpan));
     }
     
-    public Piece(tetrominoes t,int  cX , int cY){
-	tetr = t;
-	colour = tetrColour.get(tetr);
-	blocks.addAll(tetrStructure.get(tetr));
-	
-	this.cX = cX;
-	this.cY = cY;
-	UpdateBottomBlocks();
-    }
-
     public tetrominoes getTetr() {
 	return tetr;
     }
@@ -224,7 +222,7 @@ public class Piece {
     /**
      * @return the bottomBlocks
      */
-    public SortedMap<Integer, Integer> getBottomBlocks() {
+    public List<int[]> getBottomBlocks() {
 	return bottomBlocks;
     }
 

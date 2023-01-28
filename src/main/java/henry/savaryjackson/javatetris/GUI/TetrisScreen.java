@@ -8,16 +8,10 @@ import javax.swing.Timer;
 import henry.savaryjackson.javatetris.utils.Piece;
 import henry.savaryjackson.javatetris.utils.Utils;
 import java.awt.Color;
-import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.awt.image.Raster;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import javax.imageio.ImageIO;
+import java.util.stream.Stream;
  
 /**
  *
@@ -28,28 +22,35 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     boolean paused ;
     Timer clock;
     Piece p;
-    
     public Piece.tetrominoes nextTetrominoe;
-    
-    
     int delay;
+    
+    int points = 0;
+    int linesCleared = 0;
+    
+    public TetrisGrid nextPieceGrid;
+    public Screen screen;
     
     List<int[]> surfaceBlocks = new ArrayList<>();
     
     private long lastKeyPress = 0;
-    private int highestBlock = 0;
-    public TetrisScreen(int w, int h) {
+    private int highestBlock = 1;
+    
+    public TetrisScreen(int w, int h, TetrisGrid nextgrid, Screen OuterFrame) {
 	super(w,h);
-	paused = false;
-	p = new Piece(Piece.tetrominoes.I,4, 24);
-	nextTetrominoe = Piece.tetrominoes.I;
+	paused = true;
+	screen = OuterFrame;
+	nextPieceGrid = nextgrid;
+	p = new Piece(Piece.tetrominoes.T,(int)(w/2), 24);
+	updateNextTetr();
 	updateSurface(0, w-1);
 	//this timer iswhere all of the game logic is running for the screen
-	clock = new Timer(300, 
+	clock = new Timer(200, 
 	    (evt)->{		
 		if (!paused){
 		    if (checkBottom()){
 			if(checkTop()){
+			    //if piece has hit the top
 			    clock.stop();
 			    paused = true;
 			    System.out.println("game over");
@@ -61,12 +62,14 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			updateSurface(p.getBottomSpan()[0] + p.cX, p.getBottomSpan()[1] + p.cX);
 			//generate new piece and next randomly
 			p = new Piece(nextTetrominoe,(int)(w/2), 24);
-			nextTetrominoe = Piece.tetrominoes.I;
+			updateNextTetr();
 			
-			int [] linesCleared = checkLines();
-			try {
-			clearLines(linesCleared[0], linesCleared[1]);
-			}catch (IOException ioe){};
+			//update any lines that have cleared by user
+			int [] lines = checkLines();
+			linesCleared += lines[1]-lines[0];
+			incrScore(lines[1]-lines[0]);
+			screen.updatePoints();
+			clearLines(lines[0], lines[1]);
 			
 	
 		    } else {
@@ -88,6 +91,11 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	addKeyListener(this);
 	
 	setVisible(true);
+    }
+    
+    private void updateNextTetr(){
+	nextTetrominoe = Utils.randTetrominoe();
+	nextPieceGrid.drawTetrominoe(nextTetrominoe, 4, 4);
     }
     
     private void fixPiece(){
@@ -119,6 +127,18 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	drawPiece();
     }
     
+    private void incrScore(int linesCleared){
+	switch (linesCleared){
+	    case 0 ->{
+		return;
+	    }
+	    case 1 -> points += 40;
+	    case 2 -> points += 100;
+	    case 3 -> points += 400;
+	    case 4 -> points += 1200;
+	}
+    }
+    
     public void updateSurface(int xBegin, int xEnd){
 	Iterator<int[]> it = surfaceBlocks.iterator();
 	while (it.hasNext()){
@@ -138,6 +158,62 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 		}
 	    }
 	}
+    }
+    
+    public void quickDrop(){
+	int[] span = p.getBottomSpan();
+	int yHighest = 1;
+	List<Integer> highests = new ArrayList<>();
+	int xHighest = span[0] + p.cX;
+	//within the x-range of the piece that faces the bottom, find what the highest 
+	//y-pos of a solid tile is
+	for (int x = span[0] + p.cX; x <=span[1] + p.cX; x++){
+	    int y =1;
+	    int yHighestinCol = y;
+	    for (; y <= highestBlock; y ++){
+		if (grid[x][y] == 1){
+		    if (y+1 > yHighestinCol){
+			yHighestinCol = y+1;
+		    }
+		}
+	    }
+	    if (yHighestinCol >= yHighest){
+		xHighest = x;
+		yHighest = yHighestinCol;
+		highests.add(yHighestinCol);
+	    }
+	    
+	}
+	clearPiece();
+	highests.removeIf( (i)-> {return i.equals(highests.get(0));});
+	if (highests.isEmpty()){
+	    //ground is level: place the piece's lowest block to the surface
+	    int yLowest = Integer.MAX_VALUE;
+	    for ( int[] b : p.getBottomBlocks()){
+		int bY = b[1];
+		if (bY < yLowest){
+		    yLowest = bY;
+		}
+		
+	    }
+	    p.cY = yHighest - yLowest;
+
+	} else{
+	    //ground is not level: place the ground's highest tile against the piece
+	    int yLowest = Integer.MAX_VALUE ;
+	    for (int[] block : p.getBottomBlocks()){
+		if (block[0] + p.cX == xHighest){
+		    if (block[1] < yLowest){
+			yLowest = block[1];
+		    }
+		}
+	    }
+	    p.cY = yHighest-yLowest;
+
+	}
+	
+	//redraw piece
+	drawPiece();
     }
     
     public int[] checkLines(){
@@ -164,32 +240,16 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     }
     
     //bottom incl top excl
-    public void clearLines( int bottom, int top) throws IOException{
+    public void clearLines( int bottom, int top){
 	if (bottom == top)
 	    return;
 	
-	//copy drawn pixels
-	BufferedImage ImageCopy = 
-		new BufferedImage(
-			getBuffer().getWidth(), 
-			(highestBlock-top+1)*tileSize, 
-			BufferedImage.TYPE_INT_RGB
-		);
-	Raster raster = getBuffer().getData(
-		    new Rectangle(
-			    0, 
-			    (h-highestBlock)*tileSize,
-			    getBuffer().getWidth(), 
-			    (highestBlock-top+1)*tileSize)
-		);
-	ImageCopy.setData(raster);
-	ImageIO.write(ImageCopy,"bmp", new File("copy.bmp"));
 	for (int y = bottom; y < top; y++){
 	    for (int x= 0; x < grid.length; x++){
 		grid[x][y] = 0;
+		drawTile(x, y, emptyColour);
 	    }
 	}
-	
 	
 	//move all lines above numLines below and clear lines above
 	int numLines = top -bottom;
@@ -197,19 +257,21 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	    for (int x= 0; x< grid.length; x++){
 		if (grid[x][y] == 0)
 		    continue;
+		//move tile to new pos below
+		
+		//TODO: fix the color picking
 		grid[x][y-numLines] = grid[x][y];
-		grid[x][y] = 0;
+		int rgb = getBuffer().getRGB((int)(x)*tileSize + 12, (int)(h-y)*tileSize + 12);
+		drawTile(x,y-numLines, new Color(rgb));
 		//clear tile
+		grid[x][y] = 0;
 		drawTile(x, y, emptyColour);
 	    }
 	}
 	
 	updateSurface(0, w-1);
 	
-	//redraw Image
-	getBuffer().getGraphics().drawImage(ImageCopy, 0, (top-1) * tileSize, this);
-	repaint();
-	int u = 0;
+	
     }
     
     public void clearPiece(){
@@ -249,7 +311,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	if (lastKeyPress != 0){
 	    long time = System.currentTimeMillis();
 	    long diff = time - lastKeyPress;
-	    if (diff  >= 100){
+	    if (diff  >= 40){
 		lastKeyPress = time;
 		switch (e.getKeyCode()){
 		    case KeyEvent.VK_UP:
@@ -265,7 +327,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			movePiece(1,0);
 			break;
 		    case KeyEvent.VK_SPACE:
-			//quick drop logic
+			quickDrop();
 			break;
 		}
 	    }
