@@ -27,7 +27,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     int linesCleared = 0;
     
     public TetrisGrid nextPieceGrid;
-    public Screen screen;
+    public MainScreen screen;
     
     List<int[]> surfaceBlocks = new ArrayList<>();
     
@@ -37,13 +37,13 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     
 
 
-    public TetrisScreen() {
-	//int w, int h , TetrisGrid nextgrid, Screen OuterFrame
-	//super(w, h);
+    public TetrisScreen(int w, int h , TetrisGrid nextgrid, MainScreen OuterFrame) {
+	//
+	super(w, h);
 	paused = true;
 	inSession = false;
-	//screen = OuterFrame;
-	//nextPieceGrid = nextgrid;
+	screen = OuterFrame;
+	nextPieceGrid = nextgrid;
 	createPiece();
 	updateSurface(0, w-1);
 	//this timer iswhere all of the game logic is running for the screen

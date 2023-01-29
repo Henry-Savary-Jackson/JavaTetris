@@ -14,7 +14,13 @@ public class MainScreen extends javax.swing.JFrame {
      * Creates new form MainScreen
      */
     public MainScreen() {
+	invalidate();
+	updateUI();
 	initComponents();
+	screen.requestFocus();
+	setDefaultCloseOperation(EXIT_ON_CLOSE);
+	setSize(900,800);
+	setVisible(true);
     }
 
     /**
@@ -33,10 +39,12 @@ public class MainScreen extends javax.swing.JFrame {
         lblLevel = new javax.swing.JLabel();
         lblLines = new javax.swing.JLabel();
         lblNextPiece = new javax.swing.JLabel();
-        tetrisGrid1 = new henry.savaryjackson.javatetris.GUI.TetrisGrid();
-        tetrisScreen1 = new henry.savaryjackson.javatetris.GUI.TetrisScreen();
+        grid = new henry.savaryjackson.javatetris.GUI.TetrisGrid(6,6);
+        screen = new henry.savaryjackson.javatetris.GUI.TetrisScreen(10,24,grid,this);
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        jPanel1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
         btnPlay.setFont(new java.awt.Font("Futura", 1, 14)); // NOI18N
         btnPlay.setText("Play");
@@ -68,16 +76,16 @@ public class MainScreen extends javax.swing.JFrame {
         lblNextPiece.setFont(new java.awt.Font("Futura", 1, 14)); // NOI18N
         lblNextPiece.setText("Next Piece:");
 
-        tetrisGrid1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+        grid.setBorder(javax.swing.BorderFactory.createEtchedBorder());
 
-        javax.swing.GroupLayout tetrisGrid1Layout = new javax.swing.GroupLayout(tetrisGrid1);
-        tetrisGrid1.setLayout(tetrisGrid1Layout);
-        tetrisGrid1Layout.setHorizontalGroup(
-            tetrisGrid1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        javax.swing.GroupLayout gridLayout = new javax.swing.GroupLayout(grid);
+        grid.setLayout(gridLayout);
+        gridLayout.setHorizontalGroup(
+            gridLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 96, Short.MAX_VALUE)
         );
-        tetrisGrid1Layout.setVerticalGroup(
-            tetrisGrid1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+        gridLayout.setVerticalGroup(
+            gridLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGap(0, 97, Short.MAX_VALUE)
         );
 
@@ -94,7 +102,7 @@ public class MainScreen extends javax.swing.JFrame {
                     .addComponent(lblLevel)
                     .addComponent(lblLines)
                     .addComponent(lblScore)
-                    .addComponent(tetrisGrid1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(grid, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(26, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -103,7 +111,7 @@ public class MainScreen extends javax.swing.JFrame {
                 .addGap(14, 14, 14)
                 .addComponent(lblNextPiece)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(tetrisGrid1, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
+                .addComponent(grid, javax.swing.GroupLayout.DEFAULT_SIZE, 101, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(lblLevel)
                 .addGap(3, 3, 3)
@@ -117,15 +125,17 @@ public class MainScreen extends javax.swing.JFrame {
                 .addGap(33, 33, 33))
         );
 
-        javax.swing.GroupLayout tetrisScreen1Layout = new javax.swing.GroupLayout(tetrisScreen1);
-        tetrisScreen1.setLayout(tetrisScreen1Layout);
-        tetrisScreen1Layout.setHorizontalGroup(
-            tetrisScreen1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 320, Short.MAX_VALUE)
+        screen.setBorder(javax.swing.BorderFactory.createEtchedBorder());
+
+        javax.swing.GroupLayout screenLayout = new javax.swing.GroupLayout(screen);
+        screen.setLayout(screenLayout);
+        screenLayout.setHorizontalGroup(
+            screenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 254, Short.MAX_VALUE)
         );
-        tetrisScreen1Layout.setVerticalGroup(
-            tetrisScreen1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 376, Short.MAX_VALUE)
+        screenLayout.setVerticalGroup(
+            screenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 372, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -133,23 +143,20 @@ public class MainScreen extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(tetrisScreen1, javax.swing.GroupLayout.DEFAULT_SIZE, 320, Short.MAX_VALUE)
-                .addGap(18, 18, 18)
+                .addGap(42, 42, 42)
+                .addComponent(screen, javax.swing.GroupLayout.PREFERRED_SIZE, 258, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 40, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(70, 70, 70))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(29, 29, 29)
-                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(tetrisScreen1, javax.swing.GroupLayout.PREFERRED_SIZE, 376, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(73, Short.MAX_VALUE))
+                    .addComponent(screen, javax.swing.GroupLayout.PREFERRED_SIZE, 376, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(63, Short.MAX_VALUE))
         );
 
         pack();
@@ -157,32 +164,40 @@ public class MainScreen extends javax.swing.JFrame {
 
     private void btnStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopActionPerformed
 
-//        if (screen.paused){
-//            dispose();
-//            System.exit(0);
-//        }else {
-//            btnStop.setText("Quit");
-//            screen.paused = true;
-//        }
+        if (screen.paused){
+            dispose();
+            System.exit(0);
+        }else {
+            btnStop.setText("Quit");
+            screen.paused = true;
+        }
     }//GEN-LAST:event_btnStopActionPerformed
-
+ public void updateUI(){
+	lblScore.setText(String.format("Score: %d", screen.points));
+	lblLines.setText(String.format("Lines: %d" , screen.linesCleared));
+	if (screen.paused){
+	    btnStop.setText("Quit");
+	}
+	repaint();
+	
+    }
     private void btnPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlayActionPerformed
-//        //switch the whether the screen is paused
-//        screen.paused = !screen.paused;
-//
-//        //if the game is paused, and the game has not yet started or is over
-//        if (!screen.inSession){
-//            screen.initTiles();
-//            screen.updateSurface(0, screen.w-1);
-//            screen.createPiece();
-//            screen.clock.start();
-//            screen.inSession = true;
-//
-//        }
-//        if (!screen.paused)
-//        btnStop.setText("Pause");
-//
-//        screen.requestFocus();
+       //switch the whether the screen is paused
+        screen.paused = !screen.paused;
+
+        //if the game is paused, and the game has not yet started or is over
+        if (!screen.inSession){
+            screen.initTiles();
+            screen.updateSurface(0, screen.w-1);
+            screen.createPiece();
+            screen.clock.start();
+            screen.inSession = true;
+
+        }
+        if (!screen.paused)
+        btnStop.setText("Pause");
+
+       screen.requestFocus();
 
     }//GEN-LAST:event_btnPlayActionPerformed
 
@@ -190,12 +205,12 @@ public class MainScreen extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnPlay;
     private javax.swing.JButton btnStop;
+    private henry.savaryjackson.javatetris.GUI.TetrisGrid grid;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblLevel;
     private javax.swing.JLabel lblLines;
     private javax.swing.JLabel lblNextPiece;
     private javax.swing.JLabel lblScore;
-    private henry.savaryjackson.javatetris.GUI.TetrisGrid tetrisGrid1;
-    private henry.savaryjackson.javatetris.GUI.TetrisScreen tetrisScreen1;
+    private henry.savaryjackson.javatetris.GUI.TetrisScreen screen;
     // End of variables declaration//GEN-END:variables
 }

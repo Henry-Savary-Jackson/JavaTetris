@@ -32,9 +32,9 @@ public class TetrisGrid extends javax.swing.JPanel {
     
     private BufferedImage buffer;
 
-    public TetrisGrid() {
-	this.h = 10;
-	this.w = 10;
+    public TetrisGrid(int w ,int h) {
+	this.h = h;
+	this.w = w;
 	grid = new byte[w][h+10];
 	this.setPreferredSize(new Dimension(w*tileSize, (h)*tileSize));
 	
