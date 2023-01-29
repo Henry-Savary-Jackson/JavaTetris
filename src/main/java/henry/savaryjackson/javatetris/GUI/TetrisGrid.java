@@ -36,11 +36,10 @@ public class TetrisGrid extends javax.swing.JPanel {
 	this.h = h;
 	this.w = w;
 	grid = new byte[w][h+10];
-	this.setPreferredSize(new Dimension(w*tileSize, (h)*tileSize));
-	
+	setPreferredSize(new Dimension((w)*tileSize, (h)*tileSize));
         initComponents();
-	//buffer = initBuffer();
-	//initTiles();
+	buffer = initBuffer();
+	initTiles();
 	setVisible(true);
 	
     }
@@ -81,7 +80,7 @@ public class TetrisGrid extends javax.swing.JPanel {
     
     public BufferedImage initBuffer(){
 	
-	BufferedImage output = new BufferedImage(100, 100, BufferedImage.TYPE_INT_RGB);
+	BufferedImage output = new BufferedImage(w*tileSize, h*tileSize, BufferedImage.TYPE_INT_RGB);
 	Graphics2D g2 = output.createGraphics();
 	g2.setColor(borderColour);
 	g2.fillRect(0,0, output.getWidth(), output.getHeight());
