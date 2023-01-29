@@ -4,8 +4,6 @@
  */
 package henry.savaryjackson.javatetris.GUI;
 
-import java.awt.Graphics;
-
 /**
  *
  * @author hsavaryjackson
@@ -21,11 +19,12 @@ public class Screen extends javax.swing.JFrame {
      */
     public Screen() {
 	initComponents();
-	grid = new TetrisGrid(10,10);
+	grid = new TetrisGrid(6,6);
 	screen = new TetrisScreen(10,24, grid, this);
-	updatePoints();
+	updateUI();
 	add(screen);
 	add(grid);
+	grid.setLocation(600, 100);
 	screen.requestFocus();
 	setDefaultCloseOperation(EXIT_ON_CLOSE);
 	setSize(900,800);
@@ -138,17 +137,33 @@ public class Screen extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnPlayActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnPlayActionPerformed
-        // TODO add your handling code here:
+        //switch the whether the screen is paused
 	screen.paused = !screen.paused;
+	
+	//if the game is paused, and the game has not yet started or is over
+	if (!screen.inSession){
+	    screen.initTiles();
+	    screen.updateSurface(0, screen.w-1);
+	    screen.createPiece();
+	    screen.clock.start();
+	    screen.inSession = true;
+	    
+	}
 	if (!screen.paused)
 	    btnStop.setText("Pause"); 
+	
 	screen.requestFocus();
+	
     }//GEN-LAST:event_btnPlayActionPerformed
 
-    public void updatePoints(){
+    public void updateUI(){
 	lblScore.setText(String.format("Score: %d", screen.points));
 	lblLines.setText(String.format("Lines: %d" , screen.linesCleared));
+	if (screen.paused){
+	    btnStop.setText("Quit");
+	}
 	repaint();
+	
     }
     
     private void btnStopActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnStopActionPerformed

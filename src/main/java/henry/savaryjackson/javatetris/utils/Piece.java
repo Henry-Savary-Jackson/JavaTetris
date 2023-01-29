@@ -23,8 +23,6 @@ public class Piece {
     public static final HashMap<tetrominoes, Color> tetrColour = createColourMap();
     
     public static final HashMap<tetrominoes, List<int[]>> tetrStructure = createStructureMap();
-   
-    private final Color colour;
     
     public static List<int[]> setI;
     public static List<int[]> setJ;
@@ -35,16 +33,19 @@ public class Piece {
     public static List<int[]> setZ; 
     
     private int[] bottomSpan = new int[2]; 
+    private final Color colour;
     
     //a map that stores the x position(key) and y position(value) of all the piece's blocks
     //facing the bottom. This is useful for performing quick drops, as this can let us see 
     //where the piece will land at quick drop
     private List<int[]> bottomBlocks = new ArrayList<>();
     
+    //a list of the all the positions of its blocks relative to its center
     private List<int[]> blocks = new ArrayList<>();
     
     private tetrominoes tetr;
     
+    //center coordinates
     public int cX, cY;
     
     public Piece(tetrominoes t,int  cX , int cY){
@@ -57,6 +58,7 @@ public class Piece {
 	UpdateBottomBlocks();
     }
     
+    //initialises the link between a piece and its colour
     private static HashMap<tetrominoes, Color>  createColourMap(){
 	HashMap<tetrominoes, Color> output = new HashMap<>();
 	output.put(tetrominoes.I, Color.CYAN);
@@ -70,6 +72,8 @@ public class Piece {
 	return output;
     }
     
+    //updates the list of blocks that face the bottom
+    // as well as the soan of the piece that face the bottom
     private void UpdateBottomBlocks(){
 	int xHighest = 0;
 	int xLowest = Integer.MAX_VALUE;
@@ -90,6 +94,7 @@ public class Piece {
 	bottomSpan = new int[]{xLowest -cX , xHighest -cX};
     }
     
+    //initialises the link between a piece and the blocks it contains
     private static HashMap<tetrominoes, List<int[]>>  createStructureMap(){
 	
 	setI =(List<int[]>) Arrays.asList(
@@ -164,13 +169,14 @@ public class Piece {
 	}
     }
     
+    //moves the piece to a position, checking that it is a valid position
     public void moveTo( byte[][] grid, int newX, int newY){
 	for (int[] block: blocks){
-	    if (!Utils.notOutOfBounds(grid, block[0] + newX, block[1] + newY)){
+	    if (!Utils.pieceNotOutOfBounds(grid, block[0] + newX, block[1] + newY)){
 		System.out.println(String.format("out of bounds at x:%d y:%d",block[0]+ newX, block[1] + newY ));
 		return;
 	    }
-	    if (grid[block[0] + newX][ block[1] + newY] == 1){
+	    if (!Utils.pieceNotTaken(grid, block[0] + newX,  block[1] + newY)){
 		System.out.println("taken");
 		return;
 	    }
@@ -179,6 +185,7 @@ public class Piece {
 	cY = newY;
     }
     
+    //rotates a block, checking that the final position is valid
     public void rotate(byte[][] grid, ROT_DIR dir){
 	if (tetr ==tetrominoes.O){
 	    return;
@@ -195,7 +202,7 @@ public class Piece {
 		    case Clockwise -> rotatePointClockwise( block);
 		    case CounterClockwise -> rotatePointCounterClockwise(block);
 		}
-		if (!Utils.notOutOfBounds(grid, block[0] + cX, block[1]+ cY)){
+		if (!Utils.pieceNotOutOfBounds(grid, block[0] + cX, block[1]+ cY)){
 		    System.out.println("out of bounds rot");
 		    return;
 		}

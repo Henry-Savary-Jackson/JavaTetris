@@ -1,7 +1,6 @@
 
 package henry.savaryjackson.javatetris.GUI;
 
-import java.awt.Graphics;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.Timer;
@@ -11,15 +10,14 @@ import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Stream;
- 
 /**
  *
  * @author hsavaryjackson
  */
 public class TetrisScreen extends TetrisGrid implements KeyListener {
 
-    boolean paused ;
+    boolean paused;
+    boolean inSession; 
     Timer clock;
     Piece p;
     public Piece.tetrominoes nextTetrominoe;
@@ -39,36 +37,39 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     public TetrisScreen(int w, int h, TetrisGrid nextgrid, Screen OuterFrame) {
 	super(w,h);
 	paused = true;
+	inSession = false;
 	screen = OuterFrame;
 	nextPieceGrid = nextgrid;
-	p = new Piece(Piece.tetrominoes.T,(int)(w/2), 24);
-	updateNextTetr();
+	createPiece();
 	updateSurface(0, w-1);
 	//this timer iswhere all of the game logic is running for the screen
 	clock = new Timer(200, 
 	    (evt)->{		
 		if (!paused){
+		    //if the block hits the bottom
 		    if (checkBottom()){
 			if(checkTop()){
-			    //if piece has hit the top
-			    clock.stop();
-			    paused = true;
-			    System.out.println("game over");
+			    //if hits top then gameover
+			    gameOver();
 			}
-			//sets the piece block positions to solid tiles
-			//and updates the highest block y pos
+			
 			fixPiece();
 			//updates the surface on which falling onto causes block to sbecome solid
 			updateSurface(p.getBottomSpan()[0] + p.cX, p.getBottomSpan()[1] + p.cX);
 			//generate new piece and next randomly
-			p = new Piece(nextTetrominoe,(int)(w/2), 24);
-			updateNextTetr();
+			createPiece();
+			drawPiece();
+			//if piece spawns on taken block, then game over
+			if (!Utils.notTaken(grid, p))
+			    gameOver();
+			
+			
 			
 			//update any lines that have cleared by user
 			int [] lines = checkLines();
 			linesCleared += lines[1]-lines[0];
 			incrScore(lines[1]-lines[0]);
-			screen.updatePoints();
+			screen.updateUI();
 			clearLines(lines[0], lines[1]);
 			
 	
@@ -82,7 +83,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	    }
 	);
 	clock.setInitialDelay(0);
-	clock.start();
+	
 	initComponents();
 	
 	//keyListener needs this to work
@@ -93,11 +94,35 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	setVisible(true);
     }
     
-    private void updateNextTetr(){
-	nextTetrominoe = Utils.randTetrominoe();
-	nextPieceGrid.drawTetrominoe(nextTetrominoe, 4, 4);
+    //initialises the current falling piece
+    public void createPiece(){
+	
+	p = inSession?  p = new Piece(nextTetrominoe,(int)(w/2), 24):new Piece(Utils.randTetrominoe(),(int)(w/2), 24);
+	updateNextTetr();
     }
     
+    //code for a game over once it occurs
+    public void gameOver(){
+	clock.stop();
+	
+	//the current session is now over and the game is paused
+	inSession = false;
+	paused = true;
+	System.out.println("game over");			    
+    }
+    
+    //updates the next piece the game will spawn and displays it on the preview grid
+    public void updateNextTetr(){
+	nextTetrominoe = Utils.randTetrominoe();
+	if (!paused){
+	    nextPieceGrid.initTiles();
+	    nextPieceGrid.drawTetrominoe(nextTetrominoe, Math.floorDiv(nextPieceGrid.w,2),Math.floorDiv(nextPieceGrid.h,2));
+	}
+	
+    }
+    
+    //sets the piece block positions to solid tiles
+    //and updates the highest block y pos
     private void fixPiece(){
 	int iHighest = 0;
 	for (int[] block : p.getBlocks()){
@@ -111,6 +136,9 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	    highestBlock = iHighest;
     }
     
+    
+    
+    //checks to see whether the current piece sits on the bottom
     private boolean checkBottom(){
 	for (int[] block : p.getBlocks()){
 	    for (int[] surfaceBlock : surfaceBlocks){
@@ -121,12 +149,14 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	return false;
     }
     
+    //code that handles moving the piece and rendering that change
     private void movePiece(int xDiff, int yDiff){
 	clearPiece();
 	p.moveTo(grid, p.cX + xDiff, p.cY+yDiff);
 	drawPiece();
     }
     
+    //increases the games score given how many lines were cleared
     private void incrScore(int linesCleared){
 	switch (linesCleared){
 	    case 0 ->{
@@ -139,6 +169,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	}
     }
     
+    // updates the list of blocks on the surface withing a range
     public void updateSurface(int xBegin, int xEnd){
 	Iterator<int[]> it = surfaceBlocks.iterator();
 	while (it.hasNext()){
@@ -160,13 +191,14 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	}
     }
     
+    //code for handling a quick drop
     public void quickDrop(){
 	int[] span = p.getBottomSpan();
 	int yHighest = 1;
 	List<Integer> highests = new ArrayList<>();
 	int xHighest = span[0] + p.cX;
 	//within the x-range of the piece that faces the bottom, find what the highest 
-	//y-pos of a solid tile is
+	//y position of a solid tile is and its corresponding x-value
 	for (int x = span[0] + p.cX; x <=span[1] + p.cX; x++){
 	    int y =1;
 	    int yHighestinCol = y;
@@ -182,9 +214,9 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 		yHighest = yHighestinCol;
 		highests.add(yHighestinCol);
 	    }
-	    
 	}
 	clearPiece();
+	//a list to see whether all the tiles are level withing the piece's bottom-facing range
 	highests.removeIf( (i)-> {return i.equals(highests.get(0));});
 	if (highests.isEmpty()){
 	    //ground is level: place the piece's lowest block to the surface
@@ -216,6 +248,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	drawPiece();
     }
     
+    //gives the range of lines to be cleared, if any, once a piece hits the grounds
     public int[] checkLines(){
 	byte numFull = 0;
 	    
@@ -232,6 +265,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 		numFull = 0;
 	    }
 	    if (j > 0){
+		 //bottom is inclusive top is exclusive
 		return new int[]{y, y+j};
 	    }
 	    
@@ -239,11 +273,13 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	return new int[]{0, 0};
     }
     
-    //bottom incl top excl
+    //clears all the lines that must be cleared on a piece is placed
+    //bottom is inclusive top is exclusive
     public void clearLines( int bottom, int top){
 	if (bottom == top)
 	    return;
 	
+	//clears all lines in the range that is full
 	for (int y = bottom; y < top; y++){
 	    for (int x= 0; x < grid.length; x++){
 		grid[x][y] = 0;
@@ -251,7 +287,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	    }
 	}
 	
-	//move all lines above numLines below and clear lines above
+	//move all lines above that range below and clear lines above
 	int numLines = top -bottom;
 	for (int y = top; y<= highestBlock; y++){
 	    for (int x= 0; x< grid.length; x++){
@@ -259,7 +295,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 		    continue;
 		//move tile to new pos below
 		
-		//TODO: fix the color picking
+		//pick the color that must drawn in the new tile position
 		grid[x][y-numLines] = grid[x][y];
 		int rgb = getBuffer().getRGB((int)(x)*tileSize + 12, (int)(h-y)*tileSize + 12);
 		drawTile(x,y-numLines, new Color(rgb));
@@ -274,24 +310,28 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	
     }
     
+    //hides the piece 
     public void clearPiece(){
 	for (int[] block : p.getBlocks()){
 	    drawTile(block[0] + p.cX, block[1] + p.cY, emptyColour);
 	}
     }
     
+    //displays the piece onto the screen
     public void drawPiece(){
 	for (int[] block : p.getBlocks()){
 	    drawTile(block[0] + p.cX, block[1] + p.cY, p.getColour());
 	}
     }
     
+    //rotates a piece
     public void rotatePiece(Piece.ROT_DIR direction){
 	clearPiece();
 	p.rotate(grid, direction);
 	drawPiece();
     }
     
+    //code to check if the block, once static goes over the y-range
     public boolean checkTop(){
 	for (int[] block : p.getBlocks()){
 	    if (block[1] == h-1){
@@ -306,6 +346,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     public void keyTyped(KeyEvent e) {
     }
 
+    //input handling 
     @Override
     public void keyPressed(KeyEvent e) {
 	if (lastKeyPress != 0){
@@ -340,11 +381,6 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     public void keyReleased(KeyEvent e) {
     }
     
-    @Override
-    public void paintComponent(Graphics g){
-	super.paintComponent(g);
-    }
-
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always

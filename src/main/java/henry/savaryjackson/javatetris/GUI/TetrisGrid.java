@@ -42,6 +42,7 @@ public class TetrisGrid extends javax.swing.JPanel {
 	initTiles();
 	setVisible(true);
     }
+
     
     public void drawTetrominoe(tetrominoes t, int cX, int cY){
 	List<int[]> blocks = Piece.tetrStructure.get(t);
@@ -87,7 +88,8 @@ public class TetrisGrid extends javax.swing.JPanel {
     
     public void initTiles(){
 	for (int x = 0; x < grid.length; x++){
-	    for (int y = 1; y < h+1; y++){
+	    for (int y = 1; y < grid[0].length; y++){
+		grid[x][y] = 0;
 		drawTile(x, y, emptyColour);
 	    }
 	}
