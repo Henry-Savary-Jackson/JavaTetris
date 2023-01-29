@@ -34,8 +34,11 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     private long lastKeyPress = 0;
     private int highestBlock = 1;
     
-    public TetrisScreen(int w, int h, TetrisGrid nextgrid, Screen OuterFrame) {
-	super(w,h);
+    
+
+
+    public TetrisScreen(int w, int h , TetrisGrid nextgrid, Screen OuterFrame) {
+	super(w, h);
 	paused = true;
 	inSession = false;
 	screen = OuterFrame;
@@ -92,6 +95,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	addKeyListener(this);
 	
 	setVisible(true);
+	
     }
     
     //initialises the current falling piece

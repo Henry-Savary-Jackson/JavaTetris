@@ -11,6 +11,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import henry.savaryjackson.javatetris.utils.Piece.tetrominoes;
+import java.awt.Dimension;
 import java.util.List;
 
 /**
@@ -31,17 +32,19 @@ public class TetrisGrid extends javax.swing.JPanel {
     
     private BufferedImage buffer;
 
-    public TetrisGrid(int w , int h) {
+    public TetrisGrid(int w ,int h) {
 	this.h = h;
 	this.w = w;
 	grid = new byte[w][h+10];
-	this.setSize(w*tileSize, (h)*tileSize);
+	this.setPreferredSize(new Dimension(w*tileSize, (h)*tileSize));
 	
         initComponents();
 	buffer = initBuffer();
 	initTiles();
 	setVisible(true);
+	
     }
+    
 
     
     public void drawTetrominoe(tetrominoes t, int cX, int cY){
@@ -78,10 +81,10 @@ public class TetrisGrid extends javax.swing.JPanel {
     
     public BufferedImage initBuffer(){
 	
-	BufferedImage output = new BufferedImage(getWidth(), getHeight(), BufferedImage.TYPE_INT_RGB);
+	BufferedImage output = new BufferedImage(getPreferredSize().width, getPreferredSize().height, BufferedImage.TYPE_INT_RGB);
 	Graphics2D g2 = output.createGraphics();
 	g2.setColor(borderColour);
-	g2.fillRect(0,0, getWidth(), getHeight());
+	g2.fillRect(0,0, output.getWidth(), output.getHeight());
 	g2.dispose();
 	return output;
     }
