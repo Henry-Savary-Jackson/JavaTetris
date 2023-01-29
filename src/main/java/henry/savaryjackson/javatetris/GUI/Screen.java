@@ -35,28 +35,20 @@ public class Screen extends javax.swing.JFrame {
     private void initComponents() {
 
         pnlUI = new javax.swing.JPanel();
-        btnPlay = new javax.swing.JButton();
         btnStop = new javax.swing.JButton();
         lblLevel = new javax.swing.JLabel();
         lblScore = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         lblLines = new javax.swing.JLabel();
         lblNextPiece = new javax.swing.JLabel();
+        jPanel1 = new javax.swing.JPanel();
+        btnPlay = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Tetris");
         setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
 
         pnlUI.setBorder(javax.swing.BorderFactory.createEtchedBorder());
-
-        btnPlay.setFont(new java.awt.Font("Futura", 1, 14)); // NOI18N
-        btnPlay.setText("Play");
-        btnPlay.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
-        btnPlay.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnPlayActionPerformed(evt);
-            }
-        });
 
         btnStop.setFont(new java.awt.Font("Futura", 1, 14)); // NOI18N
         btnStop.setText("Quit");
@@ -79,40 +71,75 @@ public class Screen extends javax.swing.JFrame {
         lblNextPiece.setFont(new java.awt.Font("Futura", 1, 14)); // NOI18N
         lblNextPiece.setText("Next Piece:");
 
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout.setHorizontalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 174, Short.MAX_VALUE)
+        );
+        jPanel1Layout.setVerticalGroup(
+            jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 363, Short.MAX_VALUE)
+        );
+
+        btnPlay.setFont(new java.awt.Font("Futura", 1, 14)); // NOI18N
+        btnPlay.setText("Play");
+        btnPlay.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
+        btnPlay.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnPlayActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout pnlUILayout = new javax.swing.GroupLayout(pnlUI);
         pnlUI.setLayout(pnlUILayout);
         pnlUILayout.setHorizontalGroup(
             pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(pnlUILayout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, pnlUILayout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnPlay)
-                .addGap(0, 0, 0)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnStop)
                 .addGap(0, 0, 0)
                 .addComponent(lblLevel)
                 .addGap(0, 0, 0)
                 .addComponent(lblScore)
-                .addGroup(pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblLines)
-                    .addComponent(jLabel4))
-                .addComponent(lblNextPiece))
+                .addComponent(lblLines)
+                .addComponent(lblNextPiece)
+                .addGap(68, 68, 68))
+            .addGroup(pnlUILayout.createSequentialGroup()
+                .addGap(162, 162, 162)
+                .addComponent(jLabel4)
+                .addGap(643, 748, Short.MAX_VALUE))
         );
         pnlUILayout.setVerticalGroup(
             pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(btnPlay)
-            .addComponent(btnStop)
             .addGroup(pnlUILayout.createSequentialGroup()
-                .addGap(2, 2, 2)
+                .addGap(12, 12, 12)
+                .addComponent(jLabel4)
                 .addGroup(pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblLevel)
-                    .addComponent(lblScore)
-                    .addComponent(lblLines)
                     .addGroup(pnlUILayout.createSequentialGroup()
-                        .addGap(10, 10, 10)
-                        .addComponent(jLabel4))
-                    .addComponent(lblNextPiece)))
+                        .addGap(85, 85, 85)
+                        .addGroup(pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                                .addComponent(btnStop)
+                                .addComponent(btnPlay))
+                            .addGroup(pnlUILayout.createSequentialGroup()
+                                .addGap(2, 2, 2)
+                                .addGroup(pnlUILayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(lblLevel)
+                                    .addComponent(lblScore)
+                                    .addComponent(lblLines)
+                                    .addComponent(lblNextPiece)))))
+                    .addGroup(pnlUILayout.createSequentialGroup()
+                        .addGap(59, 59, 59)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(95, Short.MAX_VALUE))
         );
 
-        getContentPane().add(pnlUI);
+        getContentPane().add(pnlUI, java.awt.BorderLayout.CENTER);
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
@@ -162,6 +189,7 @@ public class Screen extends javax.swing.JFrame {
     private javax.swing.JButton btnPlay;
     private javax.swing.JButton btnStop;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
     private javax.swing.JLabel lblLevel;
     private javax.swing.JLabel lblLines;
     private javax.swing.JLabel lblNextPiece;

@@ -37,12 +37,13 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     
 
 
-    public TetrisScreen(int w, int h , TetrisGrid nextgrid, Screen OuterFrame) {
-	super(w, h);
+    public TetrisScreen() {
+	//int w, int h , TetrisGrid nextgrid, Screen OuterFrame
+	//super(w, h);
 	paused = true;
 	inSession = false;
-	screen = OuterFrame;
-	nextPieceGrid = nextgrid;
+	//screen = OuterFrame;
+	//nextPieceGrid = nextgrid;
 	createPiece();
 	updateSurface(0, w-1);
 	//this timer iswhere all of the game logic is running for the screen
