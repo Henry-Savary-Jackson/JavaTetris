@@ -18,6 +18,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 
     boolean paused;
     boolean inSession; 
+    boolean quickDrop = false;
     Timer clock;
     Piece p;
     public Piece.tetrominoes nextTetrominoe;
@@ -41,6 +42,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	//
 	super(w, h);
 	paused = true;
+	
 	inSession = false;
 	screen = OuterFrame;
 	nextPieceGrid = nextgrid;
@@ -81,8 +83,6 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			movePiece(0, -1);
 			
 		    }
-		    
-		    
 		}
 	    }
 	);
@@ -101,7 +101,6 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     
     //initialises the current falling piece
     public void createPiece(){
-	
 	p = inSession?  p = new Piece(nextTetrominoe,(int)(w/2), 24):new Piece(Utils.randTetrominoe(),(int)(w/2), 24);
 	updateNextTetr();
     }
@@ -198,59 +197,35 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     
     //code for handling a quick drop
     public void quickDrop(){
+	quickDrop = true;
 	int[] span = p.getBottomSpan();
-	int yHighest = 1;
-	List<Integer> highests = new ArrayList<>();
-	int xHighest = span[0] + p.cX;
-	//within the x-range of the piece that faces the bottom, find what the highest 
-	//y position of a solid tile is and its corresponding x-value
+	int yLowestHeightDiff = Integer.MAX_VALUE;
+	//within the x-range of the piece that faces the bottom
+	//find what is the lowest amount height needed to be lost 
+	//in order to touch the surface
 	for (int x = span[0] + p.cX; x <=span[1] + p.cX; x++){
 	    int y =1;
 	    int yHighestinCol = y;
-	    for (; y <= highestBlock; y ++){
+	    for (; y <= p.cY; y ++){
 		if (grid[x][y] == 1){
 		    if (y+1 > yHighestinCol){
 			yHighestinCol = y+1;
 		    }
 		}
 	    }
-	    if (yHighestinCol >= yHighest){
-		xHighest = x;
-		yHighest = yHighestinCol;
-		highests.add(yHighestinCol);
+	    int yOfPiece = p.getBottomBlocks().get(x-p.cX);
+	    if ( (p.cY+ yOfPiece) - yHighestinCol < yLowestHeightDiff){
+		yLowestHeightDiff = (p.cY+ yOfPiece) - yHighestinCol;
 	    }
 	}
 	clearPiece();
-	//a list to see whether all the tiles are level withing the piece's bottom-facing range
-	highests.removeIf( (i)-> {return i.equals(highests.get(0));});
-	if (highests.isEmpty()){
-	    //ground is level: place the piece's lowest block to the surface
-	    int yLowest = Integer.MAX_VALUE;
-	    for ( int[] b : p.getBottomBlocks()){
-		int bY = b[1];
-		if (bY < yLowest){
-		    yLowest = bY;
-		}
-		
-	    }
-	    p.cY = yHighest - yLowest;
-
-	} else{
-	    //ground is not level: place the ground's highest tile against the piece
-	    int yLowest = Integer.MAX_VALUE ;
-	    for (int[] block : p.getBottomBlocks()){
-		if (block[0] + p.cX == xHighest){
-		    if (block[1] < yLowest){
-			yLowest = block[1];
-		    }
-		}
-	    }
-	    p.cY = yHighest-yLowest;
-
-	}
+	//lower the piece by the necessary height
+	p.cY -= (yLowestHeightDiff);
 	
 	//redraw piece
 	drawPiece();
+	quickDrop = false;
+	
     }
     
     //gives the range of lines to be cleared, if any, once a piece hits the grounds

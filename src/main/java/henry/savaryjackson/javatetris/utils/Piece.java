@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class Piece {
     public static enum tetrominoes{
@@ -38,7 +39,7 @@ public class Piece {
     //a map that stores the x position(key) and y position(value) of all the piece's blocks
     //facing the bottom. This is useful for performing quick drops, as this can let us see 
     //where the piece will land at quick drop
-    private List<int[]> bottomBlocks = new ArrayList<>();
+    private HashMap<Integer, Integer> bottomBlocks = new HashMap<>();
     
     //a list of the all the positions of its blocks relative to its center
     private List<int[]> blocks = new ArrayList<>();
@@ -87,8 +88,9 @@ public class Piece {
 	    if (xLowest > block[0] + cX){
 		xLowest = block[0] + cX;
 	    }
-	    if (!blocks.stream().filter((p) -> p.equals(new int[]{block[0], block[1]-1})).findFirst().isPresent()){
-		bottomBlocks.add( new int[]{block[0], block[1]});
+	    Stream<int[]> stream  = blocks.stream().filter((p) -> Arrays.equals(p, new int[]{block[0], block[1]-1}));
+	    if (!stream.findFirst().isPresent()){
+		bottomBlocks.put(block[0], block[1]);
 	    }
 	}
 	bottomSpan = new int[]{xLowest -cX , xHighest -cX};
@@ -229,7 +231,7 @@ public class Piece {
     /**
      * @return the bottomBlocks
      */
-    public List<int[]> getBottomBlocks() {
+    public HashMap<Integer , Integer> getBottomBlocks() {
 	return bottomBlocks;
     }
 
