@@ -1,24 +1,34 @@
 
 package henry.savaryjackson.javatetris.GUI;
 
+import henry.savaryjackson.javatetris.utils.MoveAction;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.Timer;
 import henry.savaryjackson.javatetris.utils.Piece;
+import henry.savaryjackson.javatetris.utils.RotateAction;
 import henry.savaryjackson.javatetris.utils.Utils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import javax.swing.KeyStroke;
 /**
  *
  * @author hsavaryjackson
  */
 public class TetrisScreen extends TetrisGrid implements KeyListener {
+    
+    public static String LEFT= "Left";
+    public static String RIGHT="Right";
+    public static String ROT_CLOCKWISE = "Clockwise";
+    public static String ROT_COUNTER_CLOCKWISE = "Counter-Clockwise";
+    public static String QUICKDROP = "Quickdrop";
+    
+    public final static int KEY_DELAY = 40;
 
     boolean paused;
     boolean inSession; 
-    boolean quickDrop = false;
     Timer clock;
     Piece p;
     public Piece.tetrominoes nextTetrominoe;
@@ -69,14 +79,11 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			if (!Utils.notTaken(grid, p))
 			    gameOver();
 			
-			
-			
-			//update any lines that have cleared by user
-			int [] lines = checkLines();
-			linesCleared += lines[1]-lines[0];
-			incrScore(lines[1]-lines[0]);
+			//update any lines that have been cleared by user
+			int lines = clearAllFullLines();
+			linesCleared += lines;
+			incrScore(lines);
 			screen.updateUI();
-			clearLines(lines[0], lines[1]);
 			
 	
 		    } else {
@@ -87,6 +94,8 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	    }
 	);
 	clock.setInitialDelay(0);
+	
+	
 	
 	initComponents();
 	
@@ -113,6 +122,23 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	inSession = false;
 	paused = true;
 	System.out.println("game over");			    
+    }
+    
+    private void initKeyBinds(){
+	
+	
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0 , false),  LEFT );
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0 , false),  RIGHT );
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0 , false),  ROT_CLOCKWISE );
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0 , false),  ROT_COUNTER_CLOCKWISE );
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0 , false),  QUICKDROP );
+	
+	
+	getActionMap().put(LEFT, new MoveAction((byte)-1, KEY_DELAY, this));
+	getActionMap().put(RIGHT, new MoveAction((byte)1, KEY_DELAY, this));
+	getActionMap().put(ROT_CLOCKWISE, new RotateAction(Piece.ROT_DIR.Clockwise, KEY_DELAY, this));
+	getActionMap().put(ROT_COUNTER_CLOCKWISE, new RotateAction(Piece.ROT_DIR.CounterClockwise, KEY_DELAY, this));
+	//getActionMap().put(RIGHT, new Action(){);
     }
     
     //updates the next piece the game will spawn and displays it on the preview grid
@@ -154,7 +180,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     }
     
     //code that handles moving the piece and rendering that change
-    private void movePiece(int xDiff, int yDiff){
+    public void movePiece(int xDiff, int yDiff){
 	clearPiece();
 	p.moveTo(grid, p.cX + xDiff, p.cY+yDiff);
 	drawPiece();
@@ -197,7 +223,6 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     
     //code for handling a quick drop
     public void quickDrop(){
-	quickDrop = true;
 	int[] span = p.getBottomSpan();
 	int yLowestHeightDiff = Integer.MAX_VALUE;
 	//within the x-range of the piece that faces the bottom
@@ -224,71 +249,61 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	
 	//redraw piece
 	drawPiece();
-	quickDrop = false;
 	
     }
     
-    //gives the range of lines to be cleared, if any, once a piece hits the grounds
-    public int[] checkLines(){
-	byte numFull = 0;
-	    
-	for (int y = 1; y < grid[0].length-4; y++){
-	    int j = 0;
-	    for (; j<4; j++){
-		for (int x = 0; x <grid.length; x++){
-		    numFull += grid[x][y+j];
-		}
-		if (numFull < grid.length){
-		    numFull = 0;
+    //clears all the lines that are full once a piece is placed
+    public int clearAllFullLines(){
+	int numLines = 0;
+
+	for (int y = 1; y <= highestBlock; y++){
+	    int x = 0;
+	    for (; x <= grid.length; x++){
+		//this prevetns arraindexoutofbounds 
+		if (x == grid.length)
 		    break;
-		}
-		numFull = 0;
-	    }
-	    if (j > 0){
-		 //bottom is inclusive top is exclusive
-		return new int[]{y, y+j};
-	    }
-	    
-	}
-	return new int[]{0, 0};
-    }
-    
-    //clears all the lines that must be cleared on a piece is placed
-    //bottom is inclusive top is exclusive
-    public void clearLines( int bottom, int top){
-	if (bottom == top)
-	    return;
-	
-	//clears all lines in the range that is full
-	for (int y = bottom; y < top; y++){
-	    for (int x= 0; x < grid.length; x++){
-		grid[x][y] = 0;
-		drawTile(x, y, emptyColour);
-	    }
-	}
-	
-	//move all lines above that range below and clear lines above
-	int numLines = top -bottom;
-	for (int y = top; y<= highestBlock; y++){
-	    for (int x= 0; x< grid.length; x++){
+		//stop if it finds an empty block
 		if (grid[x][y] == 0)
-		    continue;
-		//move tile to new pos below
+		    break;
+	    }
+	    //use final x value to determine if line is full
+	    if (x == grid.length){
+		//line is full
+		numLines ++;
+		//clear full line
+		clearLine(y);
+	    } else if ( numLines != 0){
+		//lines is not full and must be moved down
+		for (int xPos = 0; xPos < grid.length; xPos++){
+		    if (grid[xPos][y] == 0)
+			continue;
+		    //to move it down, pick the color that must drawn in its new tile position
+		    grid[xPos][y-numLines] = grid[xPos][y];
+		    int rgb = getBuffer().getRGB((int)(xPos)*tileSize + 12, (int)(h-y)*tileSize + 12);
+		    drawTile(xPos,y-numLines, new Color(rgb));
+		    //clear the original tile
+		    grid[xPos][y] = 0;
+		    drawTile(xPos, y, emptyColour);
+		}
 		
-		//pick the color that must drawn in the new tile position
-		grid[x][y-numLines] = grid[x][y];
-		int rgb = getBuffer().getRGB((int)(x)*tileSize + 12, (int)(h-y)*tileSize + 12);
-		drawTile(x,y-numLines, new Color(rgb));
-		//clear tile
-		grid[x][y] = 0;
-		drawTile(x, y, emptyColour);
 	    }
 	}
 	
 	updateSurface(0, w-1);
 	
-	
+	return numLines;
     }
+    
+    //clear one entrie row
+    public void clearLine(int y){
+	for (int x= 0; x < grid.length; x++){
+	    grid[x][y] = 0;
+	    drawTile(x, y, emptyColour);
+	}
+    }
+    
+    
+
     
     //hides the piece 
     public void clearPiece(){

@@ -5,10 +5,8 @@
 package henry.savaryjackson.javatetris.GUI;
 
 import java.awt.Color;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
