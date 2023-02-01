@@ -14,8 +14,8 @@ public class MoveAction extends TetrisAction {
     
     byte dir;
     
-    public MoveAction(byte dir, int delay,TetrisScreen screen){
-	super(delay, screen);
+    public MoveAction(KEY_STATE state,  byte dir, int delay,TetrisScreen screen){
+	super(state, delay, screen);
 	this.dir = dir;
     }
 

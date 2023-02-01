@@ -14,8 +14,8 @@ public class RotateAction extends TetrisAction {
     
     Piece.ROT_DIR dir;
 
-    public RotateAction(Piece.ROT_DIR dir, int delay, TetrisScreen screen ){
-	super(delay, screen);
+    public RotateAction( KEY_STATE state,  Piece.ROT_DIR dir, int delay, TetrisScreen screen ){
+	super(state, delay, screen);
 	this.dir = dir;
     }
     

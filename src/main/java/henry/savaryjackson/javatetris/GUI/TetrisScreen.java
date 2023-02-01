@@ -7,17 +7,20 @@ import java.awt.event.KeyListener;
 import javax.swing.Timer;
 import henry.savaryjackson.javatetris.utils.Piece;
 import henry.savaryjackson.javatetris.utils.RotateAction;
+import henry.savaryjackson.javatetris.utils.TetrisAction;
+import henry.savaryjackson.javatetris.utils.TetrisAction.KEY_STATE;
 import henry.savaryjackson.javatetris.utils.Utils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.swing.KeyStroke;
+//import henry.savaryjackson.javatetris.utils.TetrisAction.KEY_STATE;
 /**
  *
  * @author hsavaryjackson
  */
-public class TetrisScreen extends TetrisGrid implements KeyListener {
+public class TetrisScreen extends TetrisGrid {
     
     public static String LEFT= "Left";
     public static String RIGHT="Right";
@@ -25,9 +28,12 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     public static String ROT_COUNTER_CLOCKWISE = "Counter-Clockwise";
     public static String QUICKDROP = "Quickdrop";
     
-    public final static int KEY_DELAY = 40;
+    public static String RELEASED =  " RELEASED";
+    public static String PRESSED =  " PRESSED";
+    
+    public final static int KEY_DELAY = 50;
 
-    boolean paused;
+    public boolean paused;
     boolean inSession; 
     Timer clock;
     Piece p;
@@ -95,14 +101,10 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	);
 	clock.setInitialDelay(0);
 	
-	
-	
 	initComponents();
 	
-	//keyListener needs this to work
+	initKeyBinds();
 	setFocusable(true);
-	
-	addKeyListener(this);
 	
 	setVisible(true);
 	
@@ -126,20 +128,49 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     
     private void initKeyBinds(){
 	
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0 , false),  LEFT + PRESSED );
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0 , true),  LEFT + RELEASED);
 	
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0 , false),  LEFT );
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0 , false),  RIGHT );
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0 , false),  ROT_CLOCKWISE );
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0 , false),  ROT_COUNTER_CLOCKWISE );
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0 , false),  QUICKDROP );
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0 , false),  RIGHT + PRESSED);
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0 , true),  RIGHT + RELEASED);
+	
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0 , false),  ROT_CLOCKWISE+ PRESSED );
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0 , true),  ROT_CLOCKWISE + RELEASED);
+	
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0 , false),  ROT_COUNTER_CLOCKWISE + PRESSED);
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0 , true),  ROT_COUNTER_CLOCKWISE + RELEASED);
+	
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0 , false),  QUICKDROP + PRESSED);
+	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0 , true),  QUICKDROP  + RELEASED);
 	
 	
-	getActionMap().put(LEFT, new MoveAction((byte)-1, KEY_DELAY, this));
-	getActionMap().put(RIGHT, new MoveAction((byte)1, KEY_DELAY, this));
-	getActionMap().put(ROT_CLOCKWISE, new RotateAction(Piece.ROT_DIR.Clockwise, KEY_DELAY, this));
-	getActionMap().put(ROT_COUNTER_CLOCKWISE, new RotateAction(Piece.ROT_DIR.CounterClockwise, KEY_DELAY, this));
-	//getActionMap().put(RIGHT, new Action(){);
-    }
+	getActionMap().put(LEFT + PRESSED , new MoveAction(KEY_STATE.KEY_PRESSED, (byte)-1, KEY_DELAY, this));
+	getActionMap().put(LEFT + RELEASED , new MoveAction(KEY_STATE.KEY_RELEASED,(byte)-1, KEY_DELAY, this));
+	
+	getActionMap().put(RIGHT + PRESSED , new MoveAction(KEY_STATE.KEY_PRESSED,(byte)1, KEY_DELAY, this));
+	getActionMap().put(RIGHT + RELEASED , new MoveAction(KEY_STATE.KEY_RELEASED,(byte)1, KEY_DELAY, this));
+	
+	getActionMap().put(ROT_CLOCKWISE + PRESSED , new RotateAction(KEY_STATE.KEY_PRESSED, Piece.ROT_DIR.Clockwise, KEY_DELAY, this));
+	getActionMap().put(ROT_CLOCKWISE + RELEASED , new RotateAction(KEY_STATE.KEY_RELEASED,Piece.ROT_DIR.Clockwise, KEY_DELAY, this));
+
+	getActionMap().put(ROT_COUNTER_CLOCKWISE + PRESSED , new RotateAction(KEY_STATE.KEY_PRESSED,Piece.ROT_DIR.CounterClockwise, KEY_DELAY, this));
+	getActionMap().put(ROT_COUNTER_CLOCKWISE + RELEASED , new RotateAction(KEY_STATE.KEY_RELEASED,Piece.ROT_DIR.CounterClockwise, KEY_DELAY, this));
+	
+	
+	
+	getActionMap().put(QUICKDROP, new TetrisAction(KEY_STATE.KEY_PRESSED, KEY_DELAY, this){
+	    @Override
+	    public void action(){
+		quickDrop();
+	    }
+	});
+	getActionMap().put(QUICKDROP, new TetrisAction(KEY_STATE.KEY_RELEASED,KEY_DELAY, this){
+		@Override
+		public void action(){
+		    quickDrop();
+		}
+	    });
+	}
     
     //updates the next piece the game will spawn and displays it on the preview grid
     public void updateNextTetr(){
@@ -335,47 +366,6 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	}
 	return false;
     }
-    
-    
-    @Override
-    public void keyTyped(KeyEvent e) {
-    }
-
-    //input handling 
-    @Override
-    public void keyPressed(KeyEvent e) {
-	if (lastKeyPress != 0){
-	    long time = System.currentTimeMillis();
-	    long diff = time - lastKeyPress;
-	    if (diff  >= 40){
-		lastKeyPress = time;
-		switch (e.getKeyCode()){
-		    case KeyEvent.VK_UP:
-			rotatePiece(Piece.ROT_DIR.Clockwise);
-			break;
-		    case KeyEvent.VK_DOWN:
-			rotatePiece(Piece.ROT_DIR.CounterClockwise);
-			break;
-		    case KeyEvent.VK_LEFT:
-			movePiece(-1,0);
-			break;
-		    case KeyEvent.VK_RIGHT:
-			movePiece(1,0);
-			break;
-		    case KeyEvent.VK_SPACE:
-			quickDrop();
-			break;
-		}
-	    }
-	} else{
-	    lastKeyPress = System.currentTimeMillis();
-	}
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-    }
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
