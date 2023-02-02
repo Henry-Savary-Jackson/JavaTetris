@@ -1,37 +1,32 @@
 
 package henry.savaryjackson.javatetris.GUI;
 
-import henry.savaryjackson.javatetris.utils.MoveAction;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.Timer;
 import henry.savaryjackson.javatetris.utils.Piece;
-import henry.savaryjackson.javatetris.utils.RotateAction;
-import henry.savaryjackson.javatetris.utils.TetrisAction;
-import henry.savaryjackson.javatetris.utils.TetrisAction.KEY_STATE;
 import henry.savaryjackson.javatetris.utils.Utils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.swing.KeyStroke;
-//import henry.savaryjackson.javatetris.utils.TetrisAction.KEY_STATE;
 /**
  *
  * @author hsavaryjackson
  */
-public class TetrisScreen extends TetrisGrid {
+public class TetrisScreen extends TetrisGrid implements KeyListener {
     
-    public static String LEFT= "Left";
-    public static String RIGHT="Right";
-    public static String ROT_CLOCKWISE = "Clockwise";
-    public static String ROT_COUNTER_CLOCKWISE = "Counter-Clockwise";
-    public static String QUICKDROP = "Quickdrop";
+    public boolean leftPressed;
+    public boolean rightPressed;
+    public boolean UpPressed;
+    public boolean DownPressed;
+
+    public Timer actionTimer;
     
-    public static String RELEASED =  " RELEASED";
-    public static String PRESSED =  " PRESSED";
+    public final static int KEY_DELAY = 100;
     
-    public final static int KEY_DELAY = 50;
+    public Piece.ROT_DIR rotDir = null;
+    public byte moveDir = 0;
 
     public boolean paused;
     boolean inSession; 
@@ -47,18 +42,19 @@ public class TetrisScreen extends TetrisGrid {
     public Screen screen;
     
     List<int[]> surfaceBlocks = new ArrayList<>();
-    
-    private long lastKeyPress = 0;
     private int highestBlock = 1;
     
+    public byte isSidewaysPressed = 0;
     
+    public byte isUpPressed = 0;
 
 
-    public TetrisScreen(int w, int h , TetrisGrid nextgrid, Screen OuterFrame) {
+    public TetrisScreen(int w, int h , TetrisGrid nextgrid, Screen OuterFrame)  {
 	//
 	super(w, h);
 	paused = true;
 	
+	actionTimer= new Timer(KEY_DELAY, (evt)->{});
 	inSession = false;
 	screen = OuterFrame;
 	nextPieceGrid = nextgrid;
@@ -103,7 +99,7 @@ public class TetrisScreen extends TetrisGrid {
 	
 	initComponents();
 	
-	initKeyBinds();
+	addKeyListener(this);
 	setFocusable(true);
 	
 	setVisible(true);
@@ -126,51 +122,6 @@ public class TetrisScreen extends TetrisGrid {
 	System.out.println("game over");			    
     }
     
-    private void initKeyBinds(){
-	
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0 , false),  LEFT + PRESSED );
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_LEFT, 0 , true),  LEFT + RELEASED);
-	
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0 , false),  RIGHT + PRESSED);
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_RIGHT, 0 , true),  RIGHT + RELEASED);
-	
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0 , false),  ROT_CLOCKWISE+ PRESSED );
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_UP, 0 , true),  ROT_CLOCKWISE + RELEASED);
-	
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0 , false),  ROT_COUNTER_CLOCKWISE + PRESSED);
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_DOWN, 0 , true),  ROT_COUNTER_CLOCKWISE + RELEASED);
-	
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0 , false),  QUICKDROP + PRESSED);
-	getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_SPACE, 0 , true),  QUICKDROP  + RELEASED);
-	
-	
-	getActionMap().put(LEFT + PRESSED , new MoveAction(KEY_STATE.KEY_PRESSED, (byte)-1, KEY_DELAY, this));
-	getActionMap().put(LEFT + RELEASED , new MoveAction(KEY_STATE.KEY_RELEASED,(byte)-1, KEY_DELAY, this));
-	
-	getActionMap().put(RIGHT + PRESSED , new MoveAction(KEY_STATE.KEY_PRESSED,(byte)1, KEY_DELAY, this));
-	getActionMap().put(RIGHT + RELEASED , new MoveAction(KEY_STATE.KEY_RELEASED,(byte)1, KEY_DELAY, this));
-	
-	getActionMap().put(ROT_CLOCKWISE + PRESSED , new RotateAction(KEY_STATE.KEY_PRESSED, Piece.ROT_DIR.Clockwise, KEY_DELAY, this));
-	getActionMap().put(ROT_CLOCKWISE + RELEASED , new RotateAction(KEY_STATE.KEY_RELEASED,Piece.ROT_DIR.Clockwise, KEY_DELAY, this));
-
-	getActionMap().put(ROT_COUNTER_CLOCKWISE + PRESSED , new RotateAction(KEY_STATE.KEY_PRESSED,Piece.ROT_DIR.CounterClockwise, KEY_DELAY, this));
-	getActionMap().put(ROT_COUNTER_CLOCKWISE + RELEASED , new RotateAction(KEY_STATE.KEY_RELEASED,Piece.ROT_DIR.CounterClockwise, KEY_DELAY, this));
-	
-	
-	
-	getActionMap().put(QUICKDROP, new TetrisAction(KEY_STATE.KEY_PRESSED, KEY_DELAY, this){
-	    @Override
-	    public void action(){
-		quickDrop();
-	    }
-	});
-	getActionMap().put(QUICKDROP, new TetrisAction(KEY_STATE.KEY_RELEASED,KEY_DELAY, this){
-		@Override
-		public void action(){
-		    quickDrop();
-		}
-	    });
-	}
     
     //updates the next piece the game will spawn and displays it on the preview grid
     public void updateNextTetr(){
@@ -366,6 +317,9 @@ public class TetrisScreen extends TetrisGrid {
 	}
 	return false;
     }
+    
+    
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -386,6 +340,88 @@ public class TetrisScreen extends TetrisGrid {
             .addGap(0, 300, Short.MAX_VALUE)
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+	actionTimer.stop();
+	switch (e.getKeyCode()){
+	    case KeyEvent.VK_UP:
+		if (!UpPressed){
+
+		    actionTimer = new Timer(KEY_DELAY, (evt)-> {rotatePiece(Piece.ROT_DIR.Clockwise);});
+		    actionTimer.setInitialDelay(0);
+		    actionTimer.start();
+		    UpPressed =true;
+		}
+
+		break;
+	    case KeyEvent.VK_DOWN:
+
+		if (!DownPressed){
+		    actionTimer = new Timer(KEY_DELAY, (evt)-> {rotatePiece(Piece.ROT_DIR.CounterClockwise);});
+		    actionTimer.setInitialDelay(0);
+		    actionTimer.start();
+
+		    DownPressed = true;
+		}
+		break;
+	    case KeyEvent.VK_LEFT:
+
+		if (!leftPressed){
+		    actionTimer = new Timer(KEY_DELAY, (evt)-> {movePiece(-1,0);});
+		    actionTimer.setInitialDelay(0);
+		    actionTimer.start();
+		    leftPressed = true;
+		} 
+		break;
+	    case KeyEvent.VK_RIGHT:
+
+		if (!rightPressed){
+		    actionTimer = new Timer(KEY_DELAY, (evt)-> {movePiece(1,0);});
+		    actionTimer.setInitialDelay(0);
+		    actionTimer.start();
+		    rightPressed = true;
+		}
+		break;
+	    case KeyEvent.VK_SPACE:
+		quickDrop();
+		break;
+	}
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+	switch (e.getKeyCode()){
+	    case KeyEvent.VK_UP:
+		if (UpPressed){
+		    UpPressed =false;
+		    actionTimer.stop();
+		}
+		break;
+	    case KeyEvent.VK_DOWN:
+		if (DownPressed){
+		    DownPressed = false;
+		    actionTimer.stop();
+		}
+		break;
+	    case KeyEvent.VK_LEFT:
+		if (leftPressed){
+		    leftPressed = false;
+		    actionTimer.stop();
+		} 
+		break;
+	    case KeyEvent.VK_RIGHT:
+		if (rightPressed){
+		    rightPressed = false;
+		    actionTimer.stop();
+		}
+		break;
+	}
+    }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
