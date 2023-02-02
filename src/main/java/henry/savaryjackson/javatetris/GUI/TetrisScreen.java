@@ -16,17 +16,12 @@ import java.util.List;
  */
 public class TetrisScreen extends TetrisGrid implements KeyListener {
     
-    public boolean leftPressed;
-    public boolean rightPressed;
-    public boolean UpPressed;
-    public boolean DownPressed;
-
-    public Timer actionTimer;
+    Timer leftTimer; 
+    Timer rightTimer;
+    Timer upTimer;
+    Timer downTimer;
     
-    public final static int KEY_DELAY = 100;
-    
-    public Piece.ROT_DIR rotDir = null;
-    public byte moveDir = 0;
+    public final static int KEY_DELAY = 150;
 
     public boolean paused;
     boolean inSession; 
@@ -54,7 +49,15 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	super(w, h);
 	paused = true;
 	
-	actionTimer= new Timer(KEY_DELAY, (evt)->{});
+	leftTimer= new Timer(KEY_DELAY, (evt)->{movePiece(-1, 0);});
+	leftTimer.setInitialDelay(0);
+	rightTimer= new Timer(KEY_DELAY, (evt)->{movePiece(1, 0);});
+	rightTimer.setInitialDelay(0);
+	upTimer= new Timer(KEY_DELAY, (evt)->{rotatePiece(Piece.ROT_DIR.Clockwise);});
+	upTimer.setInitialDelay(0);
+	downTimer= new Timer(KEY_DELAY, (evt)->{rotatePiece(Piece.ROT_DIR.CounterClockwise);});
+	downTimer.setInitialDelay(0);
+
 	inSession = false;
 	screen = OuterFrame;
 	nextPieceGrid = nextgrid;
@@ -72,9 +75,9 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			}
 			
 			fixPiece();
-			//updates the surface on which falling onto causes block to sbecome solid
+			//updates the surface on which falling onto causes block to become solid
 			updateSurface(p.getBottomSpan()[0] + p.cX, p.getBottomSpan()[1] + p.cX);
-			//generate new piece and next randomly
+			//generate new piece and next one randomly
 			createPiece();
 			drawPiece();
 			//if piece spawns on taken block, then game over
@@ -347,44 +350,45 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-	actionTimer.stop();
+	
 	switch (e.getKeyCode()){
 	    case KeyEvent.VK_UP:
-		if (!UpPressed){
-
-		    actionTimer = new Timer(KEY_DELAY, (evt)-> {rotatePiece(Piece.ROT_DIR.Clockwise);});
-		    actionTimer.setInitialDelay(0);
-		    actionTimer.start();
-		    UpPressed =true;
+		if (!upTimer.isRunning() ){
+		    upTimer.start();
+		    
+		    if (downTimer.isRunning())
+			downTimer.stop();
 		}
 
 		break;
 	    case KeyEvent.VK_DOWN:
 
-		if (!DownPressed){
-		    actionTimer = new Timer(KEY_DELAY, (evt)-> {rotatePiece(Piece.ROT_DIR.CounterClockwise);});
-		    actionTimer.setInitialDelay(0);
-		    actionTimer.start();
-
-		    DownPressed = true;
+		if (!downTimer.isRunning() ){
+		    
+		    downTimer.start();
+		    
+		    if (upTimer.isRunning())
+			upTimer.stop();
 		}
 		break;
 	    case KeyEvent.VK_LEFT:
 
-		if (!leftPressed){
-		    actionTimer = new Timer(KEY_DELAY, (evt)-> {movePiece(-1,0);});
-		    actionTimer.setInitialDelay(0);
-		    actionTimer.start();
-		    leftPressed = true;
-		} 
+		if (!leftTimer.isRunning() ){
+		    
+		    leftTimer.start();
+		    
+		    if (rightTimer.isRunning())
+			rightTimer.stop();
+		}
 		break;
 	    case KeyEvent.VK_RIGHT:
 
-		if (!rightPressed){
-		    actionTimer = new Timer(KEY_DELAY, (evt)-> {movePiece(1,0);});
-		    actionTimer.setInitialDelay(0);
-		    actionTimer.start();
-		    rightPressed = true;
+		if (!rightTimer.isRunning() ){
+		    
+		    rightTimer.start();
+		    
+		    if (leftTimer.isRunning())
+			leftTimer.stop();
 		}
 		break;
 	    case KeyEvent.VK_SPACE:
@@ -397,27 +401,23 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     public void keyReleased(KeyEvent e) {
 	switch (e.getKeyCode()){
 	    case KeyEvent.VK_UP:
-		if (UpPressed){
-		    UpPressed =false;
-		    actionTimer.stop();
+		if (upTimer.isRunning()){
+		    upTimer.stop();
 		}
 		break;
 	    case KeyEvent.VK_DOWN:
-		if (DownPressed){
-		    DownPressed = false;
-		    actionTimer.stop();
+		if (downTimer.isRunning()){
+		    downTimer.stop();
 		}
 		break;
 	    case KeyEvent.VK_LEFT:
-		if (leftPressed){
-		    leftPressed = false;
-		    actionTimer.stop();
+		if (leftTimer.isRunning() ){
+		    leftTimer.stop();
 		} 
 		break;
 	    case KeyEvent.VK_RIGHT:
-		if (rightPressed){
-		    rightPressed = false;
-		    actionTimer.stop();
+		if (rightTimer.isRunning() ){
+		    rightTimer.stop();
 		}
 		break;
 	}

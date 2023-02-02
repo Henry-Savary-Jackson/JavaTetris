@@ -175,11 +175,9 @@ public class Piece {
     public void moveTo( byte[][] grid, int newX, int newY){
 	for (int[] block: blocks){
 	    if (!Utils.pieceNotOutOfBounds(grid, block[0] + newX, block[1] + newY)){
-		System.out.println(String.format("out of bounds at x:%d y:%d",block[0]+ newX, block[1] + newY ));
 		return;
 	    }
 	    if (!Utils.pieceNotTaken(grid, block[0] + newX,  block[1] + newY)){
-		System.out.println("taken");
 		return;
 	    }
 	}
@@ -205,7 +203,6 @@ public class Piece {
 		    case CounterClockwise -> rotatePointCounterClockwise(block);
 		}
 		if (!Utils.pieceNotOutOfBounds(grid, block[0] + cX, block[1]+ cY)){
-		    System.out.println("out of bounds rot");
 		    return;
 		}
 		    
@@ -214,7 +211,6 @@ public class Piece {
 	}
 	blocks = blocksCopy;
 	UpdateBottomBlocks();
-	System.out.println(Arrays.toString(bottomSpan));
     }
     
     public tetrominoes getTetr() {

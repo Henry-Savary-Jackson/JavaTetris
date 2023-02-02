@@ -134,23 +134,18 @@ public class Screen extends JFrame {
     }
     private void btnPlayActionPerformed(java.awt.event.ActionEvent evt) { 
 	
-	
-       //switch the whether the screen is paused
-        screen.paused = !screen.paused;
-
-        //if the game is paused, and the game has not yet started or is over
-        if (!screen.inSession){
-            screen.initTiles();
+	screen.paused = false;
+	btnStop.setText("Pause");
+	screen.requestFocus();
+	if (!screen.inSession){
+	    screen.initTiles();
             screen.updateSurface(0, screen.w-1);
             screen.createPiece();
             screen.clock.start();
             screen.inSession = true;
-
+	   
+            
         }
-        if (!screen.paused)
-        btnStop.setText("Pause");
-
-       screen.requestFocus();
 
     }      
 }
