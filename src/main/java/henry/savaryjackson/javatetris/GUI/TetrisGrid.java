@@ -21,16 +21,16 @@ import java.util.List;
 public class TetrisGrid extends javax.swing.JPanel {
 
     /** Creates new form TetrisGrid */
-    int w,h;
-    byte[][] grid;
+    protected int w,h;
+    protected byte[][] grid;
     
     protected final int tileSize = 24;
     protected final int innerTileSize =20;
     
-    public final Color borderColour = Color.DARK_GRAY;
-    public final Color emptyColour = Color.BLACK;
+    protected final Color borderColour = Color.DARK_GRAY;
+    protected final Color emptyColour = Color.BLACK;
     
-    private BufferedImage buffer;
+    protected BufferedImage buffer;
 
     public TetrisGrid(int w ,int h) {
 	this.h = h;
@@ -64,11 +64,11 @@ public class TetrisGrid extends javax.swing.JPanel {
 	    g.drawImage(getBuffer(), 0, 0, this);
     }
     
-    public void drawTile(int x, int  y , Color c){
+    protected void drawTile(int x, int  y , Color c){
 	Graphics2D g2 = getBuffer().createGraphics();
 	
 	//draw main
-	int height = h * tileSize;
+	int height = getH() * tileSize;
 	
 	g2.setColor(c);
 	g2.fillRect((x*tileSize)+2, (height -(y*tileSize)+2), innerTileSize, innerTileSize);
@@ -78,9 +78,9 @@ public class TetrisGrid extends javax.swing.JPanel {
     }
     
     
-    public BufferedImage initBuffer(){
+    protected BufferedImage initBuffer(){
 	
-	BufferedImage output = new BufferedImage(w*tileSize, h*tileSize, BufferedImage.TYPE_INT_RGB);
+	BufferedImage output = new BufferedImage(getW()*tileSize, getH()*tileSize, BufferedImage.TYPE_INT_RGB);
 	Graphics2D g2 = output.createGraphics();
 	g2.setColor(borderColour);
 	g2.fillRect(0,0, output.getWidth(), output.getHeight());
@@ -88,9 +88,9 @@ public class TetrisGrid extends javax.swing.JPanel {
 	return output;
     }
     
-    public void initTiles(){
-	for (int x = 0; x < grid.length; x++){
-	    for (int y = 1; y < grid[0].length; y++){
+    protected void initTiles(){
+	for (int x = 0; x < getGrid().length; x++){
+	    for (int y = 1; y < getGrid()[0].length; y++){
 		grid[x][y] = 0;
 		drawTile(x, y, emptyColour);
 	    }
@@ -123,6 +123,27 @@ public class TetrisGrid extends javax.swing.JPanel {
      */
     public BufferedImage getBuffer() {
 	return buffer;
+    }
+
+    /**
+     * @return the w
+     */
+    public int getW() {
+	return w;
+    }
+
+    /**
+     * @return the h
+     */
+    public int getH() {
+	return h;
+    }
+
+    /**
+     * @return the grid
+     */
+    public byte[][] getGrid() {
+	return grid;
     }
 
 

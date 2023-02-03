@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 
 
@@ -30,13 +31,25 @@ public class Screen extends JFrame {
     
     private GroupLayout layout;
     
-    public Screen(){
+    private Timer UIupdateClock;
+    
+    private String userID;
+    
+    public Screen(String userID){
 	super("Tetris");
+	
+	//setAccount
+	this.userID = userID;
+	
 	//init tetris grids
 	grid = new TetrisGrid(6,6);
-	screen = new TetrisScreen(10, 24, grid, this);
+	screen = new TetrisScreen(10, 24);
 	
 	initUI();
+	
+	//set clock to update the score info
+	UIupdateClock = new Timer(15, (evt)-> {updateUI();});
+	UIupdateClock.start();
 	
 	//change some other settings
 	setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -115,37 +128,41 @@ public class Screen extends JFrame {
     
     private void btnStopActionPerformed(java.awt.event.ActionEvent evt) {                                        
 
-        if (screen.paused){
+        if (screen.isPaused()){
             dispose();
             System.exit(0);
         }else {
             btnStop.setText("Quit");
-            screen.paused = true;
+            screen.setPaused(true);
         }
     }                                       
- public void updateUI(){
-	lblScore.setText(String.format("Score: %d", screen.points));
-	lblLines.setText(String.format("Lines: %d" , screen.linesCleared));
-	if (screen.paused){
+    private void updateUI(){
+	lblScore.setText(String.format("Score: %d", screen.getPoints()));
+	lblLines.setText(String.format("Lines: %d" , screen.getLinesCleared()));
+	lblLevel.setText(String.format("Level: %d" , screen.getLevel()));
+	if (screen.isPaused()){
 	    btnStop.setText("Quit");
 	}
-	repaint();
+	if (!screen.isPaused()){
+	    grid.initTiles();
+	    grid.drawTetrominoe(screen.getNextTetrominoe(), Math.floorDiv(grid.getW(),2),Math.floorDiv(grid.getH(),2));
+	}
+	lblLevel.repaint();
+	lblScore.repaint();
+	lblLines.repaint();
+	btnStop.repaint();
 	
     }
+    
     private void btnPlayActionPerformed(java.awt.event.ActionEvent evt) { 
 	
-	screen.paused = false;
+	screen.setPaused(false);
 	btnStop.setText("Pause");
 	screen.requestFocus();
-	if (!screen.inSession){
-	    screen.initTiles();
-            screen.updateSurface(0, screen.w-1);
-            screen.createPiece();
-            screen.clock.start();
-            screen.inSession = true;
-	   
-            
+	if (!screen.isInSession()){ 
+	   screen.restart();
         }
+	screen.setInSession(true);
 
-    }      
+    }   
 }
