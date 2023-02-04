@@ -7,26 +7,15 @@ import javax.swing.Timer;
 import henry.savaryjackson.javatetris.utils.Piece;
 import henry.savaryjackson.javatetris.utils.Utils;
 import java.awt.Color;
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.Clip;
-import javax.sound.sampled.LineUnavailableException;
-import javax.sound.sampled.UnsupportedAudioFileException;
 /**
  *
  * @author hsavaryjackson
  */
 public class TetrisScreen extends TetrisGrid implements KeyListener {
-    
-    private final String audioLocation = "henry/savaryjackson/javatetris/audio/";
-    
-    private Clip themeClip;
-    
+        
     private Timer leftTimer; 
     private Timer rightTimer;
     private Timer upTimer;
@@ -109,11 +98,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	clock.setInitialDelay(0);
 	clock.start();
 	
-	try {
-	    initThemeClip();
-	} catch (UnsupportedAudioFileException | IOException | LineUnavailableException ex) {
-	    System.out.println("Error with clip " + ex.getMessage());
-	}
+
 	
 	
 	
@@ -124,38 +109,6 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	
 	setVisible(true);
 	
-    }
-    
-    public void initThemeClip()throws UnsupportedAudioFileException, IOException, LineUnavailableException{
-	System.out.println(TetrisScreen.class.getResource(audioLocation+"theme.wav"));
-	AudioInputStream auStream = 
-		AudioSystem.getAudioInputStream(TetrisScreen.class.getResourceAsStream(audioLocation+"theme.wav"));
-	themeClip = AudioSystem.getClip();
-	themeClip.open(auStream);
-	restartTheme();
-    }
-    
-    public void restartTheme(){
-	if (themeClip != null){
-	    themeClip.setMicrosecondPosition(0);
-	    themeClip.start();
-	}
-    }
-    
-    public void playTheme(){
-	
-	if (themeClip != null)
-	    themeClip.start();
-    }
-    
-    public void stopTheme() {
-	if ( themeClip != null)
-	    themeClip.stop();
-    }
-    
-    public void closeTheme(){
-	if ( themeClip != null)
-	    themeClip.close();
     }
     
     
@@ -189,8 +142,6 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     //code for a game over once it occurs
     public void gameOver(){
 	clock.stop();
-	
-	stopTheme();
 	//the current session is now over and the game is paused
 	setInSession(false);
 	setPaused(true);
