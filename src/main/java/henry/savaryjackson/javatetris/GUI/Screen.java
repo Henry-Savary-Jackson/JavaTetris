@@ -6,6 +6,8 @@ package henry.savaryjackson.javatetris.GUI;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -16,7 +18,7 @@ import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 
 
-public class Screen extends JFrame {
+public class Screen extends JFrame{
     
     private JButton btnPlay = new JButton("Play");
     private JButton btnStop  = new JButton("Stop");
@@ -132,6 +134,7 @@ public class Screen extends JFrame {
             dispose();
             System.exit(0);
         }else {
+	    screen.stopTheme();
             btnStop.setText("Quit");
             screen.setPaused(true);
         }
@@ -160,9 +163,14 @@ public class Screen extends JFrame {
 	btnStop.setText("Pause");
 	screen.requestFocus();
 	if (!screen.isInSession()){ 
+	   screen.restartTheme();
 	   screen.restart();
-        }
+        }else {
+	    screen.playTheme();
+	}
 	screen.setInSession(true);
 
     }   
+
+
 }
