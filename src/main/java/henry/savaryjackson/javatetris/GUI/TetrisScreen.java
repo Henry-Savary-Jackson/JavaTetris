@@ -15,13 +15,17 @@ import java.util.List;
  * @author hsavaryjackson
  */
 public class TetrisScreen extends TetrisGrid implements KeyListener {
+    
         
     private Timer leftTimer; 
     private Timer rightTimer;
     private Timer upTimer;
     private Timer downTimer;
     
-    public final static int KEY_DELAY = 120;
+    public final static int KEY_DELAY = 90;
+    
+    private Piece.tetrominoes hold;
+    private boolean switchable = true;
 
     private boolean paused;
     private boolean inSession; 
@@ -54,7 +58,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	downTimer.setInitialDelay(0);
 
 	inSession = false;
-	createPiece();
+	createPiece(Utils.randTetrominoe());
 	updateSurface(0, w-1);
 	
 	//this timer iswhere all of the game logic is running for the screen
@@ -72,7 +76,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			//updates the surface on which falling onto causes block to become solid
 			updateSurface(getPiece().getBottomSpan()[0] + getPiece().cX, getPiece().getBottomSpan()[1] + getPiece().cX);
 			//generate new piece and next one randomly
-			createPiece();
+			createPiece(getNextTetrominoe());
 			drawPiece();
 			//if piece spawns on taken block, then game over
 			if (!Utils.notTaken(grid, p))
@@ -81,11 +85,13 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			//update any lines that have been cleared by user
 			int lines = clearAllFullLines();
 			updateDelay(level);
-			//level = Math.divideExact(linesCleared, 5);
 			linesCleared += lines;
-			level = Math.divideExact(linesCleared, 1);
+			level = Math.divideExact(linesCleared, 5);
 			updateDelay(level);
 			incrScore(lines);
+			
+			if (!switchable)
+			    switchable = true;
 	
 		    } else {
 			movePiece(0, -1);
@@ -97,8 +103,6 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	updateDelay(level);
 	clock.setInitialDelay(0);
 	clock.start();
-	
-
 	
 	
 	
@@ -112,17 +116,33 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     }
     
     
+    private void holdPiece(){
+
+	if (hold == null){
+	    clearPiece();
+	    hold = p.getTetr();
+	    createPiece(getNextTetrominoe());
+	    drawPiece();
+	}else if (switchable) {
+	    clearPiece();
+	    Piece.tetrominoes tTemp = p.getTetr();
+	    createPiece(hold);
+	    drawPiece();
+	    hold =tTemp;
+	    switchable = false;
+
+	}
+	
+    }    
+
+    
     public void restart(){
 	initTiles();
         updateSurface(0, w-1);
-        createPiece();
+        createPiece(Utils.randTetrominoe());
         clock.start();
         inSession = true;
 	paused = false;
-	
-    }
-    
-    private void increaseLevel(int newLinesCleared){
 	
     }
     
@@ -134,8 +154,8 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     }
     
     //initialises the current falling piece
-    private void createPiece(){
-	p = isInSession()?  p = new Piece(getNextTetrominoe(),(int)(w/2), 24):new Piece(Utils.randTetrominoe(),(int)(w/2), 24);
+    private void createPiece(Piece.tetrominoes tetr){
+	p = isInSession()?  p = new Piece(tetr,(int)(w/2), 24):new Piece(Utils.randTetrominoe(),(int)(w/2), 24);
 	updateNextTetr();
     }
     
@@ -412,6 +432,9 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	    case KeyEvent.VK_SPACE:
 		quickDrop();
 		break;
+	    case KeyEvent.VK_C:
+		holdPiece();
+		break;
 	}
     }
 
@@ -516,6 +539,13 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
      */
     public int getLevel() {
 	return level;
+    }
+
+    /**
+     * @return the hold
+     */
+    public Piece.tetrominoes getHold() {
+	return hold;
     }
 
 

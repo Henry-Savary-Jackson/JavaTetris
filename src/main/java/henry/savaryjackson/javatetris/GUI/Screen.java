@@ -4,6 +4,7 @@
  */
 package henry.savaryjackson.javatetris.GUI;
 
+import henry.savaryjackson.javatetris.utils.Piece;
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.BorderFactory;
@@ -21,13 +22,16 @@ public class Screen extends JFrame{
     private JButton btnPlay = new JButton("Play");
     private JButton btnStop  = new JButton("Stop");
     private JPanel pnlUI = new JPanel();
+    private JPanel pnlHold = new JPanel();
     private JLabel lblLevel = new JLabel("Level:");
     private JLabel lblLines = new JLabel("Lines:");
     private JLabel lblNextPiece = new JLabel("Next Piece:");
     private JLabel lblScore = new JLabel("Score:");
+    private JLabel lblHold = new JLabel("Hold:");
     
     private TetrisGrid grid;
     private TetrisScreen screen;
+    private TetrisGrid hold;
     
     private GroupLayout layout;
     
@@ -43,7 +47,9 @@ public class Screen extends JFrame{
 	
 	//init tetris grids
 	grid = new TetrisGrid(6,6);
+	hold = new TetrisGrid(6,6);
 	screen = new TetrisScreen(10, 24);
+	
 	
 	initUI();
 	
@@ -62,6 +68,7 @@ public class Screen extends JFrame{
 	screen.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	grid.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	pnlUI.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+	pnlHold.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	getContentPane().setBackground(Color.LIGHT_GRAY);
 	
 	//frame layout
@@ -69,14 +76,32 @@ public class Screen extends JFrame{
 	layout.setAutoCreateGaps(true);
 	layout.setAutoCreateContainerGaps(true);
 	layout.setHorizontalGroup(layout.createSequentialGroup()
+		.addComponent(pnlHold)
+		.addGap(70)
 		.addComponent(screen)
 		.addGap(70)
 		.addComponent(pnlUI)
 	);
 	
-	layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(screen).addGap(125).addComponent(pnlUI));
+	layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(pnlHold).addGap(125).addComponent(screen).addGap(125).addComponent(pnlUI));
 	
+	//pnlHold layout
 	
+	GroupLayout pnlHoldLayout = new GroupLayout(pnlHold);
+	pnlHoldLayout.setAutoCreateGaps(true);
+	
+	pnlHoldLayout.setVerticalGroup(
+		pnlHoldLayout.createSequentialGroup()
+		.addComponent(lblHold)
+		.addComponent(hold,hold.getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
+	);
+	
+	pnlHoldLayout.setHorizontalGroup(
+		pnlHoldLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+		.addComponent(lblHold)
+		.addComponent(hold,100, GroupLayout.PREFERRED_SIZE, 150)
+	);
+	pnlHold.setLayout(pnlHoldLayout);
 	
 	getContentPane().setLayout(layout);
 	
@@ -120,8 +145,10 @@ public class Screen extends JFrame{
 	lblLevel.setFont(new Font("Futura", Font.BOLD, 20));
 	lblLines.setFont(new Font("Futura", Font.BOLD, 20));
 	lblScore.setFont(new Font("Futura", Font.BOLD, 20));
+	lblHold.setFont(new Font("Futura", Font.BOLD, 20));
 	btnPlay.setFont(new Font("Futura", Font.BOLD, 20));
 	btnStop.setFont(new Font("Futura", Font.BOLD, 20));
+	
 	pack();
 	updateUI();
     }
@@ -146,6 +173,11 @@ public class Screen extends JFrame{
 	if (!screen.isPaused()){
 	    grid.initTiles();
 	    grid.drawTetrominoe(screen.getNextTetrominoe(), Math.floorDiv(grid.getW(),2),Math.floorDiv(grid.getH(),2));
+	    if (screen.getHold() != null){
+		hold.initTiles();
+		hold.drawTetrominoe(screen.getHold(),  Math.floorDiv(hold.getW(),2),Math.floorDiv(hold.getH(),2));
+	    }
+	    
 	}
 	lblLevel.repaint();
 	lblScore.repaint();
