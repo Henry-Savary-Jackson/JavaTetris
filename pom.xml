@@ -12,12 +12,9 @@
     </properties>
     <build>
         <resources>
-            <resource>
-                <directory>"src/main/resources/henry/savaryjackson/javatetris"</directory>
-                <includes>
-                    <include>"*/*.wav"</include>
-                </includes>
-            </resource>
-        </resources>
+        <resource>
+            <directory>audio</directory>
+        </resource>
+    </resources>
     </build>
 </project>
