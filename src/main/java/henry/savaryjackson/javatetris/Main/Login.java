@@ -6,6 +6,12 @@ package henry.savaryjackson.javatetris.Main;
 
 import henry.savaryjackson.javatetris.GUI.Screen;
 import javax.swing.SwingUtilities;
+import henry.savaryjackson.javatetris.utils.WebUtils.Client;
+import henry.savaryjackson.javatetris.utils.WebUtils.StatusException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import org.springframework.web.server.ResponseStatusException;
 
 /**
  *
@@ -13,13 +19,15 @@ import javax.swing.SwingUtilities;
  */
 public class Login extends javax.swing.JFrame {
     
-
+    Client client ;
 
     /**
      * Creates new form Login
      */
     public Login() {
 	initComponents();
+	client = new Client();
+	Logger.getGlobal().setLevel(Level.INFO);
     }
 
     /**
@@ -44,12 +52,21 @@ public class Login extends javax.swing.JFrame {
         jLabel1.setText("Password:");
 
         edtPassword.setFont(new java.awt.Font("Futura", 1, 18)); // NOI18N
-        edtPassword.setText("jPasswordField1");
+        edtPassword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                edtPasswordActionPerformed(evt);
+            }
+        });
 
         lblUsername.setFont(new java.awt.Font("Futura", 1, 18)); // NOI18N
         lblUsername.setText("Username:");
 
         edtUsername.setFont(new java.awt.Font("Futura", 1, 18)); // NOI18N
+        edtUsername.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                edtUsernameActionPerformed(evt);
+            }
+        });
 
         btnSignIn.setFont(new java.awt.Font("Futura", 1, 18)); // NOI18N
         btnSignIn.setText("Sign In");
@@ -61,6 +78,11 @@ public class Login extends javax.swing.JFrame {
 
         btnSignUp.setFont(new java.awt.Font("Futura", 1, 18)); // NOI18N
         btnSignUp.setText("Sign Up");
+        btnSignUp.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSignUpActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -106,11 +128,87 @@ public class Login extends javax.swing.JFrame {
 
     private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignInActionPerformed
         // TODO add your handling code here:
-	startGame();
+	
+	String username = edtUsername.getText();
+	if (username.equals("")){
+	    Logger.getGlobal().warning("Please enter a username");
+	    JOptionPane.showMessageDialog(this, "Please enter a username","Error", JOptionPane.ERROR_MESSAGE) ;
+	    return;
+	}
+	
+	String password = String.valueOf(edtPassword.getPassword());
+	if (password.equals("")){
+	    Logger.getGlobal().warning("Please enter password");
+	    JOptionPane.showMessageDialog(this, "Please enter password","Error", JOptionPane.ERROR_MESSAGE) ;
+	    return;
+	}
+	
+	String id = "";
+	try{
+	    id = client.login(username, password);
+	} catch (ResponseStatusException | StatusException| NullPointerException e){
+	    Logger.getGlobal().warning(e.getMessage());
+	    // dialog
+	    JOptionPane.showMessageDialog(this, e.getMessage(),"Error", JOptionPane.ERROR_MESSAGE) ;
+	    return;
+	}
+	
+	Logger.getGlobal().info(id);
+	
+	startGame(id);
+	
     }//GEN-LAST:event_btnSignInActionPerformed
 
-    private void startGame(){
-	SwingUtilities.invokeLater(()->new Screen(""));
+    private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
+        // TODO add your handling code here:
+	String username = edtUsername.getText();
+	
+	if (username.equals("")){
+	    Logger.getGlobal().warning("Please enter a username");
+	    JOptionPane.showMessageDialog(this, "Please enter a username","Error", JOptionPane.ERROR_MESSAGE) ;
+	    return;
+	}
+	
+	String password = String.valueOf(edtPassword.getPassword());
+	
+	if (password.equals("")){
+	    Logger.getGlobal().warning("Please enter a password");
+	    JOptionPane.showMessageDialog(this, "Please enter password","Error", JOptionPane.ERROR_MESSAGE) ;
+	    return;
+	}
+	
+	if (password.length() < 8){
+	    Logger.getGlobal().warning("Password must be at least 8 characters long.");
+	    JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long.","Error", JOptionPane.ERROR_MESSAGE) ;
+	    return;
+	}
+	
+	String id = "";
+	try{
+	    id = client.SignUp(username, password);
+	} catch (ResponseStatusException | StatusException| NullPointerException e){
+	    Logger.getGlobal().warning(e.getMessage());
+	    return;
+	}
+	
+	Logger.getGlobal().info(id);
+	
+	
+	
+	startGame(id);
+    }//GEN-LAST:event_btnSignUpActionPerformed
+
+    private void edtPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edtPasswordActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_edtPasswordActionPerformed
+
+    private void edtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edtUsernameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_edtUsernameActionPerformed
+
+    private void startGame(String userID){
+	
+	SwingUtilities.invokeLater(()->new Screen(userID));
 	
 	dispose();
     }

@@ -86,7 +86,9 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			int lines = clearAllFullLines();
 			updateDelay(level);
 			linesCleared += lines;
-			level = 1+ Math.divideExact(linesCleared, 5);
+			//level = 1+ Math.divideExact(linesCleared, 5);
+			// TODO: fix this shit
+			level = 2;
 			updateDelay(level);
 			incrScore(lines);
 			

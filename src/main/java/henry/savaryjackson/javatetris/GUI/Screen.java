@@ -4,7 +4,6 @@
  */
 package henry.savaryjackson.javatetris.GUI;
 
-import henry.savaryjackson.javatetris.utils.Piece;
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.BorderFactory;
@@ -18,6 +17,7 @@ import javax.swing.border.BevelBorder;
 
 
 public class Screen extends JFrame{
+
     
     private JButton btnPlay = new JButton("Play");
     private JButton btnStop  = new JButton("Stop");
