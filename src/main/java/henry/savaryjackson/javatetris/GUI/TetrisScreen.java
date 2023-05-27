@@ -41,10 +41,9 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     private List<int[]> surfaceBlocks = new ArrayList<>();
     private int highestBlock = 1;
     
-    
 
 
-    public TetrisScreen(int w, int h )  {
+    public TetrisScreen(int w, int h)  {
 	super(w, h);
 	paused = true;
 	

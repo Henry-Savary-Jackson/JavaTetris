@@ -8,7 +8,8 @@ package henry.savaryjackson.javatetris.utils.WebUtils;
  *
  * @author hsavaryjackson
  */
-
+// maybe this whole class in unnecessary
+// TODO : look into it
 public class StatusException extends Exception {
     
     private String message;
@@ -17,6 +18,7 @@ public class StatusException extends Exception {
 	this.message = message;
     }
     
+    @Override
     public String getMessage(){
 	return message;
     }

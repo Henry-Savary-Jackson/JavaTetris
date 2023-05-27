@@ -6,7 +6,7 @@ package henry.savaryjackson.javatetris.Main;
 
 import henry.savaryjackson.javatetris.GUI.Screen;
 import javax.swing.SwingUtilities;
-import henry.savaryjackson.javatetris.utils.WebUtils.Client;
+import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
 import henry.savaryjackson.javatetris.utils.WebUtils.StatusException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,15 +18,13 @@ import org.springframework.web.server.ResponseStatusException;
  * @author hsavaryjackson
  */
 public class Login extends javax.swing.JFrame {
-    
-    Client client ;
+
 
     /**
      * Creates new form Login
      */
     public Login() {
 	initComponents();
-	client = new Client();
 	Logger.getGlobal().setLevel(Level.INFO);
     }
 
@@ -145,7 +143,7 @@ public class Login extends javax.swing.JFrame {
 	
 	String id = "";
 	try{
-	    id = client.login(username, password);
+	    id = APIUtils.login(username, password);
 	} catch (ResponseStatusException | StatusException| NullPointerException e){
 	    Logger.getGlobal().warning(e.getMessage());
 	    // dialog
@@ -185,7 +183,7 @@ public class Login extends javax.swing.JFrame {
 	
 	String id = "";
 	try{
-	    id = client.SignUp(username, password);
+	    id = APIUtils.SignUp(username, password);
 	} catch (ResponseStatusException | StatusException| NullPointerException e){
 	    Logger.getGlobal().warning(e.getMessage());
 	    return;
@@ -208,9 +206,10 @@ public class Login extends javax.swing.JFrame {
 
     private void startGame(String userID){
 	
-	SwingUtilities.invokeLater(()->new Screen(userID));
+	SwingUtilities.invokeLater(()->new Screen(userID, this));
 	
-	dispose();
+	setVisible(false);
+
     }
     /**
      * @param args the command line arguments

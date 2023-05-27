@@ -21,6 +21,9 @@ public class Screen extends JFrame{
     
     private JButton btnPlay = new JButton("Play");
     private JButton btnStop  = new JButton("Stop");
+    
+    private JButton btnUserDetails = new JButton("Your Account");
+    
     private JPanel pnlUI = new JPanel();
     private JPanel pnlHold = new JPanel();
     private JLabel lblLevel = new JLabel("Level:");
@@ -28,10 +31,12 @@ public class Screen extends JFrame{
     private JLabel lblNextPiece = new JLabel("Next Piece:");
     private JLabel lblScore = new JLabel("Score:");
     private JLabel lblHold = new JLabel("Hold:");
+    private JLabel lblHighscore = new JLabel("High Score:");
     
     private TetrisGrid grid;
     private TetrisScreen screen;
     private TetrisGrid hold;
+    private UserDetails userDetails;
     
     private GroupLayout layout;
     
@@ -39,17 +44,22 @@ public class Screen extends JFrame{
     
     private String userID;
     
-    public Screen(String userID){
+    private JFrame parent;
+    
+    private int highScore = 0;
+    
+    public Screen(String userID, JFrame parent){
 	super("Tetris");
 	
 	//setAccount
 	this.userID = userID;
+	this.parent = parent;
 	
 	//init tetris grids
 	grid = new TetrisGrid(6,6);
 	hold = new TetrisGrid(6,6);
 	screen = new TetrisScreen(10, 24);
-	
+	userDetails = new UserDetails(this, this.userID);
 	
 	initUI();
 	
@@ -81,9 +91,15 @@ public class Screen extends JFrame{
 		.addComponent(screen)
 		.addGap(70)
 		.addComponent(pnlUI)
+		.addGap(70)
+		.addComponent(btnUserDetails)
 	);
 	
-	layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).addComponent(pnlHold).addGap(125).addComponent(screen).addGap(125).addComponent(pnlUI));
+	layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING).
+		addComponent(pnlHold).addGap(125).
+		addComponent(screen).addGap(125).
+		addComponent(pnlUI).addGap(125)
+		.addComponent(btnUserDetails));
 	
 	//pnlHold layout
 	
@@ -117,6 +133,7 @@ public class Screen extends JFrame{
 		.addComponent(lblLevel)
 		.addComponent(lblLines)
 		.addComponent(lblScore)
+		.addComponent(lblHighscore)
 		.addGap(100)
 		.addComponent(btnPlay)
 		.addComponent(btnStop)
@@ -129,6 +146,7 @@ public class Screen extends JFrame{
 		.addComponent(lblLevel)
 		.addComponent(lblLines)
 		.addComponent(lblScore)
+		.addComponent(lblHighscore)
 		.addGap(100)
 		.addComponent(btnPlay)
 		.addComponent(btnStop)
@@ -138,6 +156,7 @@ public class Screen extends JFrame{
 	//button action listeners
 	btnPlay.addActionListener((e)-> {btnPlayActionPerformed(e);});
 	btnStop.addActionListener((e)-> {btnStopActionPerformed(e);});
+	btnUserDetails.addActionListener((e)-> {btnUserDetailsActionPerformed(e);});
 	
 	
 	//setting fonts
@@ -148,16 +167,24 @@ public class Screen extends JFrame{
 	lblHold.setFont(new Font("Futura", Font.BOLD, 20));
 	btnPlay.setFont(new Font("Futura", Font.BOLD, 20));
 	btnStop.setFont(new Font("Futura", Font.BOLD, 20));
+	btnUserDetails.setFont(new Font("Futura", Font.BOLD, 20));
 	
 	pack();
 	updateUI();
     }
     
+    private void btnUserDetailsActionPerformed(java.awt.event.ActionEvent evt){
+	this.setVisible(false);
+	this.userDetails.setVisible(true);
+    }
+    
     private void btnStopActionPerformed(java.awt.event.ActionEvent evt) {                                        
 
         if (screen.isPaused()){
-            dispose();
-            System.exit(0);
+	    if (parent != null){
+		parent.setVisible(true);
+	    }
+	    dispose();
         }else {
             btnStop.setText("Quit");
             screen.setPaused(true);
@@ -167,6 +194,7 @@ public class Screen extends JFrame{
 	lblScore.setText(String.format("Score: %d", screen.getPoints()));
 	lblLines.setText(String.format("Lines: %d" , screen.getLinesCleared()));
 	lblLevel.setText(String.format("Level: %d" , screen.getLevel()));
+	lblHighscore.setText(String.format("High Score: %d", this.highScore));
 	if (screen.isPaused()){
 	    btnStop.setText("Quit");
 	}
@@ -182,6 +210,7 @@ public class Screen extends JFrame{
 	lblLevel.repaint();
 	lblScore.repaint();
 	lblLines.repaint();
+	lblHighscore.repaint();
 	btnStop.repaint();
 	
     }
@@ -197,6 +226,20 @@ public class Screen extends JFrame{
 	screen.setInSession(true);
 
     }   
+
+    /**
+     * @return the userID
+     */
+    public String getUserID() {
+	return userID;
+    }
+
+    /**
+     * @return the parent
+     */
+    public JFrame getParent() {
+	return parent;
+    }
 
 
 }
