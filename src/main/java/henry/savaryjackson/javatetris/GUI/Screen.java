@@ -42,24 +42,24 @@ public class Screen extends JFrame{
     
     private Timer UIupdateClock;
     
-    private String userID;
+    private String token;
     
     private JFrame parent;
     
     private int highScore = 0;
     
-    public Screen(String userID, JFrame parent){
+    public Screen(String token, JFrame parent){
 	super("Tetris");
 	
 	//setAccount
-	this.userID = userID;
+	this.token = token;
 	this.parent = parent;
 	
 	//init tetris grids
 	grid = new TetrisGrid(6,6);
 	hold = new TetrisGrid(6,6);
 	screen = new TetrisScreen(10, 24);
-	userDetails = new UserDetails(this, this.userID);
+	userDetails = new UserDetails(this, this.token);
 	
 	initUI();
 	
@@ -230,8 +230,8 @@ public class Screen extends JFrame{
     /**
      * @return the userID
      */
-    public String getUserID() {
-	return userID;
+    public String getToken() {
+	return token;
     }
 
     /**

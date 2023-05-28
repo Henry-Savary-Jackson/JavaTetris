@@ -4,21 +4,20 @@
  */
 package henry.savaryjackson.javatetris.Main;
 
+import com.google.gson.JsonObject;
 import henry.savaryjackson.javatetris.GUI.Screen;
 import javax.swing.SwingUtilities;
 import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
-import henry.savaryjackson.javatetris.utils.WebUtils.StatusException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 /**
  *
  * @author hsavaryjackson
  */
 public class Login extends javax.swing.JFrame {
-
 
     /**
      * Creates new form Login
@@ -125,92 +124,102 @@ public class Login extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignInActionPerformed
-        // TODO add your handling code here:
-	
+	// TODO add your handling code here:
+
 	String username = edtUsername.getText();
-	if (username.equals("")){
+	if (username.equals("")) {
 	    Logger.getGlobal().warning("Please enter a username");
-	    JOptionPane.showMessageDialog(this, "Please enter a username","Error", JOptionPane.ERROR_MESSAGE) ;
+	    JOptionPane.showMessageDialog(this, "Please enter a username", "Error", JOptionPane.ERROR_MESSAGE);
 	    return;
 	}
-	
+
 	String password = String.valueOf(edtPassword.getPassword());
-	if (password.equals("")){
+	if (password.equals("")) {
 	    Logger.getGlobal().warning("Please enter password");
-	    JOptionPane.showMessageDialog(this, "Please enter password","Error", JOptionPane.ERROR_MESSAGE) ;
+	    JOptionPane.showMessageDialog(this, "Please enter password", "Error", JOptionPane.ERROR_MESSAGE);
 	    return;
 	}
-	
-	String id = "";
-	try{
-	    id = APIUtils.login(username, password);
-	} catch (ResponseStatusException | StatusException| NullPointerException e){
+
+	String token = "";
+	try {
+	    token = APIUtils.login(username, password);
+	} catch (NullPointerException e) {
 	    Logger.getGlobal().warning(e.getMessage());
 	    // dialog
-	    JOptionPane.showMessageDialog(this, e.getMessage(),"Error", JOptionPane.ERROR_MESSAGE) ;
+	    JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 	    return;
+	} catch (WebClientResponseException ex) {
+	    Logger.getGlobal().info(ex.getResponseBodyAsString());
+	    Logger.getGlobal().warning(ex.getMessage());
+	    return ;
+
 	}
-	
-	Logger.getGlobal().info(id);
-	
-	startGame(id);
-	
+
+	Logger.getGlobal().info(token);
+
+	startGame(token);
+
     }//GEN-LAST:event_btnSignInActionPerformed
 
     private void btnSignUpActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignUpActionPerformed
-        // TODO add your handling code here:
+	// TODO add your handling code here:
 	String username = edtUsername.getText();
-	
-	if (username.equals("")){
+
+	if (username.equals("")) {
 	    Logger.getGlobal().warning("Please enter a username");
-	    JOptionPane.showMessageDialog(this, "Please enter a username","Error", JOptionPane.ERROR_MESSAGE) ;
+	    JOptionPane.showMessageDialog(this, "Please enter a username", "Error", JOptionPane.ERROR_MESSAGE);
 	    return;
 	}
-	
+
 	String password = String.valueOf(edtPassword.getPassword());
-	
-	if (password.equals("")){
+
+	if (password.equals("")) {
 	    Logger.getGlobal().warning("Please enter a password");
-	    JOptionPane.showMessageDialog(this, "Please enter password","Error", JOptionPane.ERROR_MESSAGE) ;
+	    JOptionPane.showMessageDialog(this, "Please enter password", "Error", JOptionPane.ERROR_MESSAGE);
 	    return;
 	}
-	
-	if (password.length() < 8){
+
+	if (password.length() < 8) {
 	    Logger.getGlobal().warning("Password must be at least 8 characters long.");
-	    JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long.","Error", JOptionPane.ERROR_MESSAGE) ;
+	    JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long.", "Error", JOptionPane.ERROR_MESSAGE);
 	    return;
 	}
-	
-	String id = "";
-	try{
-	    id = APIUtils.SignUp(username, password);
-	} catch (ResponseStatusException | StatusException| NullPointerException e){
+
+	String token = "";
+	try {
+	    token = APIUtils.SignUp(username, password);
+	} catch (NullPointerException e) {
 	    Logger.getGlobal().warning(e.getMessage());
 	    return;
+	} catch (WebClientResponseException ex) {
+	    
+	    Logger.getGlobal().info(ex.getResponseBodyAsString());
+	    Logger.getGlobal().warning(ex.getMessage());
+	    return ;
+
 	}
-	
-	Logger.getGlobal().info(id);
-	
-	
-	
-	startGame(id);
+
+	Logger.getGlobal().info(token);
+
+	startGame(token);
     }//GEN-LAST:event_btnSignUpActionPerformed
 
     private void edtPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edtPasswordActionPerformed
-        // TODO add your handling code here:
+	// TODO add your handling code here:
     }//GEN-LAST:event_edtPasswordActionPerformed
 
     private void edtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edtUsernameActionPerformed
-        // TODO add your handling code here:
+	// TODO add your handling code here:
     }//GEN-LAST:event_edtUsernameActionPerformed
 
-    private void startGame(String userID){
-	
-	SwingUtilities.invokeLater(()->new Screen(userID, this));
-	
+    private void startGame(String userID) {
+
+	SwingUtilities.invokeLater(() -> new Screen(userID, this));
+
 	setVisible(false);
 
     }
+
     /**
      * @param args the command line arguments
      */

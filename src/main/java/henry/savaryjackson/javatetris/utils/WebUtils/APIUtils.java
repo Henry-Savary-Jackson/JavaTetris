@@ -5,6 +5,7 @@
 package henry.savaryjackson.javatetris.utils.WebUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.JsonSyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,6 +13,7 @@ import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 
 import org.springframework.web.server.ResponseStatusException;
@@ -23,8 +25,11 @@ public class APIUtils {
     private static final String changeUsernameEndoint = domain+"/change" ;
     private static final String loginEndoint = domain+"/login" ;
     private static final String signUpEndpoint = domain+"/signup" ;
+    private static final String userInfoEndpoint = domain+"/userinfo" ;
+    private static final String updateScoreEndpoint = domain+"/score";
     
-    public static String login(String username, String password ) throws NullPointerException,ResponseStatusException, StatusException{
+    public static String login(String username, String password ) throws WebClientResponseException,
+	    NullPointerException, JsonSyntaxException{
 	
 	// hashs using argon2id
 	Argon2PasswordEncoder encoder = new Argon2PasswordEncoder(0,64,1,15*1024,2);
@@ -49,7 +54,7 @@ public class APIUtils {
 	ResponseEntity<String> response ;
 	try {
 	    response = request.toEntity(String.class).block();
-	} catch (ResponseStatusException e){
+	} catch (WebClientResponseException e){
 	    // handle error with unsuccessful acess code
 	    throw e;
 	}
@@ -61,17 +66,15 @@ public class APIUtils {
 	
 	// parse response body
 	JsonObject responseBody =  (JsonObject)JsonParser.parseString( response.getBody());
-	
-	if (!responseBody.get("Status").getAsString().equals("Success")){
-	    throw new StatusException(responseBody.get("Status").getAsString());
-	}
+
 	
 	// return id for use
 	
-	return responseBody.get("id").getAsString();
+	return responseBody.getAsJsonPrimitive("token").getAsString();
     }
         
-    public static String SignUp(String username, String password)  throws NullPointerException,ResponseStatusException, StatusException{
+    public static String SignUp(String username, String password)  throws WebClientResponseException,
+	    NullPointerException,JsonSyntaxException{
 	
 	// ecnrypted password without salt
 	// this is just to add another layer of encryption along with TLS (which is not implemented yet but wait)
@@ -89,48 +92,39 @@ public class APIUtils {
 	// create and send request to endpoint
 	ResponseSpec request = WebClient.builder().build().post().uri(signUpEndpoint)
 		.contentType(MediaType.APPLICATION_JSON)
-		.bodyValue(bodyJson.toString())
-		.retrieve() ;
-	
+		.bodyValue(bodyJson.toString()).retrieve();
+
 	ResponseEntity<String> response = request.toEntity(String.class).block();
+
 	
 	// throw exception if null response
 	if (response == null){
 	    throw new NullPointerException("Response entity is null");
-	}
-	// check status code
-	if (!response.getStatusCode().is2xxSuccessful()){
-	    throw new ResponseStatusException(response.getStatusCode());
 	}
 	
 	// if successful so far, extract body from response
 	JsonObject responseBody =  (JsonObject)JsonParser.parseString( response.getBody());
 	
 	// check status values in body if the server has indicated a problem , raise exception with info
-	if (!responseBody.get("Status").getAsString().equals("Success")){
-	    throw new StatusException(responseBody.get("Status").getAsString());
-	}
-	
-	return responseBody.get("id").getAsString();
+
+	return responseBody.getAsJsonPrimitive("token").getAsString();
     }
+	
+ 
     
-    public static void changeUsername(String userID, String password, String newUsername)  throws NullPointerException,ResponseStatusException, StatusException{
+    public static void changeUsername(String token, String newUsername) throws JsonSyntaxException, WebClientResponseException, NullPointerException {
 	
 	// ecnrypted password without salt
 	// this is just to add another layer of encryption along with TLS (which is not implemented yet but wait)
 	
-	Argon2PasswordEncoder encoder = new Argon2PasswordEncoder(0,64,1,15*1024,2);
-	
-	String hash = encoder.encode(password);
-	
 	// create the key value pairs for your request body
 	JsonObject bodyJson  = new JsonObject();
 	
-	bodyJson.addProperty("hash", hash);
+	bodyJson.addProperty("token", token);
 	bodyJson.addProperty("new_username", newUsername);
 	
 	// create and send request to endpoint
-	ResponseSpec request = WebClient.builder().build().put().uri(String.format("%s/%s",changeUsernameEndoint,userID))
+	ResponseSpec request = WebClient.builder().build().put().uri(changeUsernameEndoint)
 		.contentType(MediaType.APPLICATION_JSON)
 		.bodyValue(bodyJson.toString())
 		.retrieve() ;
@@ -141,29 +135,54 @@ public class APIUtils {
 	if (response == null){
 	    throw new NullPointerException("Response entity is null");
 	}
-	// check status code
-	if (!response.getStatusCode().is2xxSuccessful()){
-	    throw new ResponseStatusException(response.getStatusCode());
-	}
-	
 	// if successful so far, extract body from response
 	JsonObject responseBody =  (JsonObject)JsonParser.parseString( response.getBody());
 	
-	// check status values in body if the server has indicated a problem , raise exception with info
-	if (!responseBody.get("Status").getAsString().equals("Success")){
-	    throw new StatusException(responseBody.get("Status").getAsString());
+	Logger.getGlobal().info(response.getBody());
+    }
+    
+    
+    public static JsonObject getInfo(String token) throws JsonSyntaxException , WebClientResponseException, NullPointerException{
+	ResponseSpec request = WebClient.builder().build().get().uri(userInfoEndpoint)
+		.accept(MediaType.APPLICATION_JSON)
+		.header("tetris_token", token).retrieve() ;
+	
+	ResponseEntity<String> response = request.toEntity(String.class).block();
+	
+	if (response == null){
+	    throw new NullPointerException();
 	}
+	
+	JsonObject jsonUserInfo = (JsonObject)JsonParser.parseString(response.getBody());
+	
+	if (!jsonUserInfo.has("username") || !jsonUserInfo.has("high_score")){
+	    throw new NullPointerException(); 
+	}
+	
+	return jsonUserInfo;
     }
     
-    
-    public int getHighScore(String userID){
+    public static void updateHighSchore(String token,  int score) throws JsonSyntaxException, WebClientResponseException, NullPointerException{
+	JsonObject bodyJson  = new JsonObject();
 	
+	bodyJson.addProperty("token", token);
+	bodyJson.addProperty("new_score", score);
 	
-	return 0;
-    }
-    
-    public void updateHighSchore(String userID, int score){
+	// create and send request to endpoint
+	ResponseSpec request = WebClient.builder().build().put().uri(updateScoreEndpoint)
+		.contentType(MediaType.APPLICATION_JSON)
+		.bodyValue(bodyJson.toString())
+		.retrieve() ;
 	
+	ResponseEntity<String> response = request.toEntity(String.class).block();
+	
+	// hanlde null response
+	if (response == null){
+	    throw new NullPointerException("Response entity is null");
+	}
+	// if successful so far, extract body from response
+	JsonObject responseBody =  (JsonObject)JsonParser.parseString( response.getBody());
+	Logger.getGlobal().info(response.getBody());
     }
     
 }

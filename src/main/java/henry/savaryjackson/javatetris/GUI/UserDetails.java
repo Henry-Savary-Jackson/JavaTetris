@@ -6,12 +6,9 @@ package henry.savaryjackson.javatetris.GUI;
 
 import com.google.gson.JsonObject;
 import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
-import henry.savaryjackson.javatetris.utils.WebUtils.StatusException;
-import java.util.function.Supplier;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
 
 /**
@@ -25,14 +22,28 @@ public class UserDetails extends javax.swing.JFrame {
      */
     private JsonObject userData;
     private Screen parent;
-    private String userID;
-    
-    public UserDetails(Screen Parent, String userID) {
-	
-	this.parent  = Parent;
-	this.userID = userID;
-	
+    private String token;
+    private int highScore;
+    private String username;
+
+    public UserDetails(Screen Parent, String token) {
+
+	this.parent = Parent;
+	this.token = token;
+
 	initComponents();
+
+	userData = APIUtils.getInfo(this.token);
+
+	if (userData.has("high_score")) {
+	    highScore = userData.getAsJsonPrimitive("high_score").getAsInt();
+	    lblHighScore.setText("High Score: " + String.valueOf(highScore));
+	}
+	if (userData.has("username")) {
+	    username = userData.getAsJsonPrimitive("username").getAsString();
+	    lblUsername.setText("Username: " + username);
+	}
+
     }
 
     /**
@@ -128,53 +139,62 @@ public class UserDetails extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnChangeUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChangeUsernameActionPerformed
-        // TODO add your handling code here:
+	// TODO add your handling code here:
 	String newUsername;
-	
+
 	while (true) {
-	    newUsername =  JOptionPane.showInputDialog(this, "Please enter your new username");
-	    
-	    if (newUsername == null){
+	    newUsername = JOptionPane.showInputDialog(this, "Please enter your new username");
+
+	    if (newUsername == null) {
 		return;
 	    }
-	
-	    if (newUsername.equals("")){
-		JOptionPane.showMessageDialog(this, "Please enter a username" , "Error" , JOptionPane.ERROR_MESSAGE);
-		continue ;
+
+	    if (newUsername.equals("")) {
+		JOptionPane.showMessageDialog(this, "Please enter a username", "Error", JOptionPane.ERROR_MESSAGE);
+		continue;
 	    }
-	    
+
 	    break;
 	}
-	
+
 	String password;
-	
+
 	while (true) {
 	    password = JOptionPane.showInputDialog(this, "Please renter your password");
-	
-	    if (password == null){
+
+	    if (password == null) {
 		return;
 	    }
-	
-	    if (password.equals("")){
-		JOptionPane.showMessageDialog(this, "Please enter your password" , "Error" , JOptionPane.ERROR_MESSAGE);
-		continue ;
+
+	    if (password.equals("")) {
+		JOptionPane.showMessageDialog(this, "Please enter your password", "Error", JOptionPane.ERROR_MESSAGE);
+		continue;
 	    }
-	    
+
 	    try {
-		APIUtils.changeUsername(this.userID, password, newUsername);
-	    } catch (NullPointerException | ResponseStatusException | StatusException ex) {
-		JOptionPane.showMessageDialog(this, ex.getMessage() , "Error" , JOptionPane.ERROR_MESSAGE);
-		continue ;
+		APIUtils.changeUsername(this.token, newUsername);
+	    } catch (NullPointerException ex) {
+		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		continue;
+	    } catch (WebClientResponseException ex) {
+		JsonObject body = ex.getResponseBodyAs(JsonObject.class);
+		if (body == null) {
+		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		    continue;
+		}
+		JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
+		continue;
+
 	    }
-	    
+
 	    break;
 	}
-	
-	
+
+
     }//GEN-LAST:event_btnChangeUsernameActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
-        // TODO add your handling code here:
+	// TODO add your handling code here:
 	this.dispose();
 	parent.setVisible(true);
     }//GEN-LAST:event_btnBackActionPerformed
