@@ -8,6 +8,7 @@ import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 import org.springframework.http.MediaType;
@@ -27,6 +28,7 @@ public class APIUtils {
     private static final String signUpEndpoint = domain+"/signup" ;
     private static final String userInfoEndpoint = domain+"/userinfo" ;
     private static final String updateScoreEndpoint = domain+"/score";
+    private static final String deleteUserEndpoint = domain+"/delete";
     
     public static String login(String username, String password ) throws WebClientResponseException,
 	    NullPointerException, JsonSyntaxException{
@@ -156,13 +158,13 @@ public class APIUtils {
 	JsonObject jsonUserInfo = (JsonObject)JsonParser.parseString(response.getBody());
 	
 	if (!jsonUserInfo.has("username") || !jsonUserInfo.has("high_score")){
-	    throw new NullPointerException(); 
+	    throw new NullPointerException("missing attibutes from response"); 
 	}
 	
 	return jsonUserInfo;
     }
     
-    public static void updateHighSchore(String token,  int score) throws JsonSyntaxException, WebClientResponseException, NullPointerException{
+    public static void updateHighScore(String token,  int score) throws JsonSyntaxException, WebClientResponseException, NullPointerException{
 	JsonObject bodyJson  = new JsonObject();
 	
 	bodyJson.addProperty("token", token);
@@ -182,6 +184,32 @@ public class APIUtils {
 	}
 	// if successful so far, extract body from response
 	JsonObject responseBody =  (JsonObject)JsonParser.parseString( response.getBody());
+	Logger.getGlobal().info(response.getBody());
+    }
+    
+    public static void deleteUser(String token){
+	
+	// create the key value pairs for your request body
+	JsonObject bodyJson  = new JsonObject();
+	
+	bodyJson.addProperty("token", token);
+	
+	// create and send request to endpoint
+	ResponseSpec request = WebClient.builder().build().method(HttpMethod.DELETE)
+		.uri(deleteUserEndpoint)
+		.contentType(MediaType.APPLICATION_JSON)
+		.bodyValue(bodyJson.toString())
+		.retrieve() ;
+	
+	ResponseEntity<String> response = request.toEntity(String.class).block();
+	
+	// hanlde null response
+	if (response == null){
+	    throw new NullPointerException("Response entity is null");
+	}
+	// if successful so far, extract body from response
+	JsonObject responseBody =  (JsonObject)JsonParser.parseString( response.getBody());
+	
 	Logger.getGlobal().info(response.getBody());
     }
     

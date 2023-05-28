@@ -155,8 +155,6 @@ public class Login extends javax.swing.JFrame {
 
 	}
 
-	Logger.getGlobal().info(token);
-
 	startGame(token);
 
     }//GEN-LAST:event_btnSignInActionPerformed

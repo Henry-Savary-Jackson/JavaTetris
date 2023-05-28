@@ -5,6 +5,7 @@
 package henry.savaryjackson.javatetris.GUI;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
 import javax.swing.JOptionPane;
 import org.springframework.web.client.HttpStatusCodeException;
@@ -33,15 +34,19 @@ public class UserDetails extends javax.swing.JFrame {
 
 	initComponents();
 
-	userData = APIUtils.getInfo(this.token);
+	try {
+	    userData = APIUtils.getInfo(this.token);
 
-	if (userData.has("high_score")) {
-	    highScore = userData.getAsJsonPrimitive("high_score").getAsInt();
-	    lblHighScore.setText("High Score: " + String.valueOf(highScore));
-	}
-	if (userData.has("username")) {
-	    username = userData.getAsJsonPrimitive("username").getAsString();
-	    lblUsername.setText("Username: " + username);
+	    if (userData.has("high_score")) {
+		highScore = userData.getAsJsonPrimitive("high_score").getAsInt();
+		lblHighScore.setText("High Score: " + String.valueOf(highScore));
+	    }
+	    if (userData.has("username")) {
+		username = userData.getAsJsonPrimitive("username").getAsString();
+		lblUsername.setText("Username: " + username);
+	    }
+	} catch (JsonSyntaxException | WebClientResponseException | NullPointerException ex) {
+	    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 	}
 
     }
@@ -74,6 +79,11 @@ public class UserDetails extends javax.swing.JFrame {
 
         btnDeleteAccount.setFont(new java.awt.Font("Futura", 1, 20)); // NOI18N
         btnDeleteAccount.setText("Delete Account");
+        btnDeleteAccount.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnDeleteAccountActionPerformed(evt);
+            }
+        });
 
         lblUsername.setFont(new java.awt.Font("Futura", 1, 20)); // NOI18N
         lblUsername.setText("Username:");
@@ -157,37 +167,17 @@ public class UserDetails extends javax.swing.JFrame {
 	    break;
 	}
 
-	String password;
-
-	while (true) {
-	    password = JOptionPane.showInputDialog(this, "Please renter your password");
-
-	    if (password == null) {
-		return;
-	    }
-
-	    if (password.equals("")) {
-		JOptionPane.showMessageDialog(this, "Please enter your password", "Error", JOptionPane.ERROR_MESSAGE);
-		continue;
-	    }
-
-	    try {
-		APIUtils.changeUsername(this.token, newUsername);
-	    } catch (NullPointerException ex) {
+	try {
+	    APIUtils.changeUsername(this.token, newUsername);
+	} catch (NullPointerException ex) {
+	    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	} catch (WebClientResponseException ex) {
+	    JsonObject body = ex.getResponseBodyAs(JsonObject.class);
+	    if (body == null) {
 		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		continue;
-	    } catch (WebClientResponseException ex) {
-		JsonObject body = ex.getResponseBodyAs(JsonObject.class);
-		if (body == null) {
-		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		    continue;
-		}
-		JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
-		continue;
-
 	    }
+	    JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
 
-	    break;
 	}
 
 
@@ -198,6 +188,32 @@ public class UserDetails extends javax.swing.JFrame {
 	this.dispose();
 	parent.setVisible(true);
     }//GEN-LAST:event_btnBackActionPerformed
+
+    private void btnDeleteAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAccountActionPerformed
+	// TODO add your handling code here:
+	if ((JOptionPane.showConfirmDialog(this, "Are you sure you want to delete your account", "Deleting your account",
+		JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.OK_OPTION)) {
+
+	    try {
+		APIUtils.deleteUser(this.token);
+	    } catch (NullPointerException ex) {
+		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	    } catch (WebClientResponseException ex) {
+		JsonObject body = ex.getResponseBodyAs(JsonObject.class);
+		if (body == null) {
+		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+		JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
+
+	    }
+	    finally{
+		System.exit(0);
+	    }
+
+	}
+
+
+    }//GEN-LAST:event_btnDeleteAccountActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables

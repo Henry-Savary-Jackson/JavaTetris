@@ -6,6 +6,8 @@ package henry.savaryjackson.javatetris.GUI;
 
 import java.awt.Color;
 import java.awt.Font;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -36,7 +38,6 @@ public class Screen extends JFrame{
     private TetrisGrid grid;
     private TetrisScreen screen;
     private TetrisGrid hold;
-    private UserDetails userDetails;
     
     private GroupLayout layout;
     
@@ -53,13 +54,13 @@ public class Screen extends JFrame{
 	
 	//setAccount
 	this.token = token;
+	Logger.getGlobal().log(Level.INFO , "token = {0}", this.token);
 	this.parent = parent;
 	
 	//init tetris grids
 	grid = new TetrisGrid(6,6);
 	hold = new TetrisGrid(6,6);
 	screen = new TetrisScreen(10, 24);
-	userDetails = new UserDetails(this, this.token);
 	
 	initUI();
 	
@@ -175,7 +176,8 @@ public class Screen extends JFrame{
     
     private void btnUserDetailsActionPerformed(java.awt.event.ActionEvent evt){
 	this.setVisible(false);
-	this.userDetails.setVisible(true);
+	UserDetails userDetails = new UserDetails(this, this.token);
+	userDetails.setVisible(true);
     }
     
     private void btnStopActionPerformed(java.awt.event.ActionEvent evt) {                                        
