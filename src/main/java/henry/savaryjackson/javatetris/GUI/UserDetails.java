@@ -6,6 +6,7 @@ package henry.savaryjackson.javatetris.GUI;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import henry.savaryjackson.javatetris.Main.Login;
 import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
 import javax.swing.JOptionPane;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
@@ -21,47 +22,28 @@ public class UserDetails extends javax.swing.JFrame {
      * Creates new form UserDetails
      */
     private JsonObject userData;
-    private Screen parent;
-    private String token;
     private int highScore;
     private String username;
 
-    public UserDetails(Screen Parent, String token) {
-
-	this.parent = Parent;
-	this.token = token;
+    public UserDetails(JsonObject userData) {
+	
+	this.userData = userData;
 
 	initComponents();
 
-	try {
-	    userData = APIUtils.getInfo(this.token);
+	updateUI();
 
-	    if (userData.has("high_score")) {
-		highScore = userData.getAsJsonPrimitive("high_score").getAsInt();
-		lblHighScore.setText("High Score: " + String.valueOf(highScore));
-	    }
-	    if (userData.has("username")) {
-		username = userData.getAsJsonPrimitive("username").getAsString();
-		lblUsername.setText("Username: " + username);
-	    }
-	} catch (NullPointerException | WebClientRequestException ex) {
-	    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	} catch (WebClientResponseException ex) {
-	    JsonObject body = ex.getResponseBodyAs(JsonObject.class);
-	    if (body == null) {
-		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		return;
-	    }
-	    if (body.has("Status")) {
-		JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
-
-	    } else {
-		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-
-	    }
-
+    }
+    
+    private void updateUI(){
+	if (userData.has("high_score")) {
+	    highScore = userData.getAsJsonPrimitive("high_score").getAsInt();
+	    lblHighScore.setText("High Score: " + String.valueOf(highScore));
 	}
-
+	if (userData.has("username")) {
+	    username = userData.getAsJsonPrimitive("username").getAsString();
+	    lblUsername.setText("Username: " + username);
+	}
     }
 
     /**
@@ -177,10 +159,10 @@ public class UserDetails extends javax.swing.JFrame {
 	    }
 
 	    try {
-		APIUtils.changeUsername(this.token, newUsername);
+		APIUtils.changeUsername(ApplicationContext.getToken(), newUsername);
 	    } catch (NullPointerException | WebClientRequestException ex) {
 		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		 continue;
+		continue;
 	    } catch (WebClientResponseException ex) {
 		JsonObject body = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
 		if (body == null) {
@@ -188,8 +170,13 @@ public class UserDetails extends javax.swing.JFrame {
 		    continue;
 		}
 		if (body.has("Status")) {
-		    JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
-
+		    String status = body.getAsJsonPrimitive("Status").getAsString();
+		    JOptionPane.showMessageDialog(this, status, "Error", JOptionPane.ERROR_MESSAGE);
+		    if (status.equals("Invalid Token")) {
+			ApplicationContext.disposeUserDetailsScreen();
+			ApplicationContext.getLoginScreen().setVisible(true);
+			return;
+		    }
 		} else {
 		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 
@@ -199,14 +186,16 @@ public class UserDetails extends javax.swing.JFrame {
 	    }
 	    break;
 	}
-
+	// update ui
+	userData.addProperty("username", newUsername);
+	updateUI();
 
     }//GEN-LAST:event_btnChangeUsernameActionPerformed
 
     private void btnBackActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBackActionPerformed
 	// TODO add your handling code here:
-	this.dispose();
-	parent.setVisible(true);
+	ApplicationContext.disposeUserDetailsScreen();
+	ApplicationContext.getMainScreen().setVisible(true);
     }//GEN-LAST:event_btnBackActionPerformed
 
     private void btnDeleteAccountActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnDeleteAccountActionPerformed
@@ -215,11 +204,11 @@ public class UserDetails extends javax.swing.JFrame {
 		JOptionPane.YES_NO_CANCEL_OPTION) == JOptionPane.OK_OPTION)) {
 
 	    try {
-		APIUtils.deleteUser(this.token);
+		APIUtils.deleteUser(ApplicationContext.getToken());
 	    } catch (NullPointerException | WebClientRequestException ex) {
 		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 	    } catch (WebClientResponseException ex) {
-		JsonObject body = ex.getResponseBodyAs(JsonObject.class);
+		JsonObject body = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
 		if (body == null) {
 		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		    return;
@@ -227,16 +216,14 @@ public class UserDetails extends javax.swing.JFrame {
 		if (body.has("Status")) {
 		    String status = body.getAsJsonPrimitive("Status").getAsString();
 		    JOptionPane.showMessageDialog(this, status, "Error", JOptionPane.ERROR_MESSAGE);
-		    if (status.equals( "Invalid Token")){
-			return ;
-		    }
 		} else {
 		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 
 		}
 
 	    } finally {
-		System.exit(0);
+		ApplicationContext.disposeUserDetailsScreen();
+		ApplicationContext.getLoginScreen().setVisible(true);
 	    }
 
 	}

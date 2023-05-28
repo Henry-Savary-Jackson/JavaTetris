@@ -6,7 +6,6 @@ package henry.savaryjackson.javatetris.utils.WebUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -16,8 +15,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
-
-import org.springframework.web.server.ResponseStatusException;
 public class APIUtils {
     
     private static WebClient webClient;

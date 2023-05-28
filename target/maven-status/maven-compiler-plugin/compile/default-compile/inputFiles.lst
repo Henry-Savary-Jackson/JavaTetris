@@ -2,6 +2,7 @@
 /Users/hsavaryjackson/NetBeansProjects/JavaTetris/src/main/java/henry/savaryjackson/javatetris/utils/Utils.java
 /Users/hsavaryjackson/NetBeansProjects/JavaTetris/src/main/java/henry/savaryjackson/javatetris/utils/Piece.java
 /Users/hsavaryjackson/NetBeansProjects/JavaTetris/src/main/java/henry/savaryjackson/javatetris/GUI/Screen.java
-/Users/hsavaryjackson/NetBeansProjects/JavaTetris/src/main/java/henry/savaryjackson/javatetris/utils/WebUtils/Client.java
 /Users/hsavaryjackson/NetBeansProjects/JavaTetris/src/main/java/henry/savaryjackson/javatetris/GUI/TetrisGrid.java
 /Users/hsavaryjackson/NetBeansProjects/JavaTetris/src/main/java/henry/savaryjackson/javatetris/Main/Login.java
+/Users/hsavaryjackson/NetBeansProjects/JavaTetris/src/main/java/henry/savaryjackson/javatetris/GUI/UserDetails.java
+/Users/hsavaryjackson/NetBeansProjects/JavaTetris/src/main/java/henry/savaryjackson/javatetris/utils/WebUtils/APIUtils.java

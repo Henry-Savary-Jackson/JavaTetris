@@ -2,6 +2,7 @@ package henry.savaryjackson.javatetris.GUI;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import henry.savaryjackson.javatetris.Main.Login;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.Timer;
@@ -13,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
+import javax.inject.Inject;
 import javax.swing.JOptionPane;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -46,14 +48,12 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 
     private List<int[]> surfaceBlocks = new ArrayList<>();
     private int highestBlock = 1;
-    
+
     private int highScore = 0;
 
-    private String token;
 
-    public TetrisScreen(int w, int h, String token) {
+    public TetrisScreen(int w, int h) {
 	super(w, h);
-	this.token = token;
 	paused = true;
 
 	leftTimer = new Timer(KEY_DELAY, (evt) -> {
@@ -182,29 +182,9 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	setInSession(false);
 	setPaused(true);
 	Logger.getGlobal().info("game over");
-
-	//update high score on server
-	try {
-	    JsonObject responseJson = APIUtils.updateHighScore(token, this.points);
-	    if (responseJson.has("high_score")){
-		setHighScore(responseJson.getAsJsonPrimitive("high_score").getAsInt());
-	    }
-	} catch (NullPointerException | WebClientRequestException e) {
-	    JOptionPane.showMessageDialog(this, e.getMessage(),
-		    "Error", JOptionPane.ERROR_MESSAGE);
-	} catch (WebClientResponseException ex) {
-	    Logger.getGlobal().warning(ex.getMessage());
-	    JsonObject responseJson = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
-	    if (responseJson.has("Status")) {
-		JOptionPane.showMessageDialog(this, responseJson.get("Status").getAsJsonPrimitive().getAsString(),
-			"Error", JOptionPane.ERROR_MESSAGE);
-	    } else {
-		JOptionPane.showMessageDialog(this, ex.getMessage(),
-			"Error", JOptionPane.ERROR_MESSAGE);
-	    }
-	    Logger.getGlobal().warning(ex.getMessage());
-
-	}
+	// make the main screen update with new score to server
+	ApplicationContext.getMainScreen().sendScore(this.points);
+	
     }
 
     //updates the next piece the game will spawn and displays it on the preview grid
@@ -591,20 +571,6 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
      */
     public Piece.tetrominoes getHold() {
 	return hold;
-    }
-
-    /**
-     * @return the token
-     */
-    public String getToken() {
-	return token;
-    }
-
-    /**
-     * @param token the token to set
-     */
-    public void setToken(String token) {
-	this.token = token;
     }
 
     /**
