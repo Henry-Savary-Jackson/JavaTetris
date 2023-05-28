@@ -44,8 +44,6 @@ public class APIUtils {
 	bodyJson.addProperty("username", username);
 	bodyJson.addProperty("hash", hash);
 	
-	Logger.getGlobal().log(Level.INFO, "Hash: {0}", hash);
-	
 	// create requests
 	ResponseSpec request = WebClient.builder().build().post().uri(loginEndoint)
 		.contentType(MediaType.APPLICATION_JSON)
@@ -164,7 +162,7 @@ public class APIUtils {
 	return jsonUserInfo;
     }
     
-    public static void updateHighScore(String token,  int score) throws JsonSyntaxException, WebClientResponseException, NullPointerException{
+    public static JsonObject updateHighScore(String token,  int score) throws JsonSyntaxException, WebClientResponseException, NullPointerException{
 	JsonObject bodyJson  = new JsonObject();
 	
 	bodyJson.addProperty("token", token);
@@ -185,6 +183,8 @@ public class APIUtils {
 	// if successful so far, extract body from response
 	JsonObject responseBody =  (JsonObject)JsonParser.parseString( response.getBody());
 	Logger.getGlobal().info(response.getBody());
+	
+	return responseBody;
     }
     
     public static void deleteUser(String token){

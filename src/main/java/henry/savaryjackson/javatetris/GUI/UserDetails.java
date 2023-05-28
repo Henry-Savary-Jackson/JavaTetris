@@ -5,12 +5,11 @@
 package henry.savaryjackson.javatetris.GUI;
 
 import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.JsonParser;
 import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
 import javax.swing.JOptionPane;
-import org.springframework.web.client.HttpStatusCodeException;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import org.springframework.web.server.ResponseStatusException;
 
 /**
  *
@@ -45,8 +44,22 @@ public class UserDetails extends javax.swing.JFrame {
 		username = userData.getAsJsonPrimitive("username").getAsString();
 		lblUsername.setText("Username: " + username);
 	    }
-	} catch (JsonSyntaxException | WebClientResponseException | NullPointerException ex) {
+	} catch (NullPointerException | WebClientRequestException ex) {
 	    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	} catch (WebClientResponseException ex) {
+	    JsonObject body = ex.getResponseBodyAs(JsonObject.class);
+	    if (body == null) {
+		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		return;
+	    }
+	    if (body.has("Status")) {
+		JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
+
+	    } else {
+		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+	    }
+
 	}
 
     }
@@ -107,6 +120,10 @@ public class UserDetails extends javax.swing.JFrame {
                 .addGap(16, 16, 16)
                 .addComponent(btnBack)
                 .addContainerGap(324, Short.MAX_VALUE))
+            .addGroup(layout.createSequentialGroup()
+                .addGap(138, 138, 138)
+                .addComponent(btnDeleteAccount)
+                .addGap(0, 0, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -115,26 +132,21 @@ public class UserDetails extends javax.swing.JFrame {
                         .addGap(226, 226, 226))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(btnChangeUsername)
-                        .addGap(82, 82, 82))))
-            .addGroup(layout.createSequentialGroup()
-                .addGap(138, 138, 138)
-                .addComponent(btnDeleteAccount)
-                .addGap(0, 0, Short.MAX_VALUE))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 0, Short.MAX_VALUE)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(lblUsername)
-                    .addComponent(lblHighScore))
-                .addGap(142, 142, 142))
+                        .addGap(82, 82, 82))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(lblUsername)
+                            .addComponent(lblHighScore))
+                        .addGap(122, 122, 122))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addGap(19, 19, 19)
                 .addComponent(btnBack)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGap(15, 15, 15)
                 .addComponent(lblUsername)
-                .addGap(27, 27, 27)
+                .addGap(18, 18, 18)
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addComponent(lblHighScore)
@@ -164,20 +176,28 @@ public class UserDetails extends javax.swing.JFrame {
 		continue;
 	    }
 
-	    break;
-	}
-
-	try {
-	    APIUtils.changeUsername(this.token, newUsername);
-	} catch (NullPointerException ex) {
-	    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	} catch (WebClientResponseException ex) {
-	    JsonObject body = ex.getResponseBodyAs(JsonObject.class);
-	    if (body == null) {
+	    try {
+		APIUtils.changeUsername(this.token, newUsername);
+	    } catch (NullPointerException | WebClientRequestException ex) {
 		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-	    }
-	    JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
+		 continue;
+	    } catch (WebClientResponseException ex) {
+		JsonObject body = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
+		if (body == null) {
+		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		    continue;
+		}
+		if (body.has("Status")) {
+		    JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
 
+		} else {
+		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+		}
+		continue;
+
+	    }
+	    break;
 	}
 
 
@@ -196,17 +216,26 @@ public class UserDetails extends javax.swing.JFrame {
 
 	    try {
 		APIUtils.deleteUser(this.token);
-	    } catch (NullPointerException ex) {
+	    } catch (NullPointerException | WebClientRequestException ex) {
 		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 	    } catch (WebClientResponseException ex) {
 		JsonObject body = ex.getResponseBodyAs(JsonObject.class);
 		if (body == null) {
 		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		    return;
 		}
-		JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
+		if (body.has("Status")) {
+		    String status = body.getAsJsonPrimitive("Status").getAsString();
+		    JOptionPane.showMessageDialog(this, status, "Error", JOptionPane.ERROR_MESSAGE);
+		    if (status.equals( "Invalid Token")){
+			return ;
+		    }
+		} else {
+		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 
-	    }
-	    finally{
+		}
+
+	    } finally {
 		System.exit(0);
 	    }
 

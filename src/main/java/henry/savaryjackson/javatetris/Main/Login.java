@@ -5,12 +5,14 @@
 package henry.savaryjackson.javatetris.Main;
 
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import henry.savaryjackson.javatetris.GUI.Screen;
 import javax.swing.SwingUtilities;
 import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 /**
@@ -143,15 +145,23 @@ public class Login extends javax.swing.JFrame {
 	String token = "";
 	try {
 	    token = APIUtils.login(username, password);
-	} catch (NullPointerException e) {
-	    Logger.getGlobal().warning(e.getMessage());
+	} catch (NullPointerException | WebClientRequestException e) {
 	    // dialog
-	    JOptionPane.showMessageDialog(this, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	    JOptionPane.showMessageDialog(rootPane, e.getMessage(),
+		     "Error", JOptionPane.ERROR_MESSAGE);
 	    return;
 	} catch (WebClientResponseException ex) {
-	    Logger.getGlobal().info(ex.getResponseBodyAsString());
 	    Logger.getGlobal().warning(ex.getMessage());
-	    return ;
+	    JsonObject responseJson = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
+	    if (responseJson.has("Status")) {
+		JOptionPane.showMessageDialog(rootPane, responseJson.get("Status").getAsJsonPrimitive().getAsString(),
+			 "Error", JOptionPane.ERROR_MESSAGE);
+	    } else {
+		JOptionPane.showMessageDialog(rootPane, ex.getMessage(),
+			 "Error", JOptionPane.ERROR_MESSAGE);
+	    }
+	    Logger.getGlobal().warning(ex.getMessage());
+	    return;
 
 	}
 
@@ -186,18 +196,24 @@ public class Login extends javax.swing.JFrame {
 	String token = "";
 	try {
 	    token = APIUtils.SignUp(username, password);
-	} catch (NullPointerException e) {
-	    Logger.getGlobal().warning(e.getMessage());
+	} catch (NullPointerException | WebClientRequestException e) {
+	    JOptionPane.showMessageDialog(rootPane, e.getMessage(),
+		     "Error", JOptionPane.ERROR_MESSAGE);
 	    return;
 	} catch (WebClientResponseException ex) {
-	    
-	    Logger.getGlobal().info(ex.getResponseBodyAsString());
 	    Logger.getGlobal().warning(ex.getMessage());
-	    return ;
+	    JsonObject responseJson = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
+	    if (responseJson.has("Status")) {
+		JOptionPane.showMessageDialog(rootPane, responseJson.get("Status").getAsJsonPrimitive().getAsString(),
+			 "Error", JOptionPane.ERROR_MESSAGE);
+	    } else {
+		JOptionPane.showMessageDialog(rootPane, ex.getMessage(),
+			 "Error", JOptionPane.ERROR_MESSAGE);
+	    }
+	    Logger.getGlobal().warning(ex.getMessage());
+	    return;
 
 	}
-
-	Logger.getGlobal().info(token);
 
 	startGame(token);
     }//GEN-LAST:event_btnSignUpActionPerformed

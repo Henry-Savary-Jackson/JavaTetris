@@ -4,18 +4,21 @@
  */
 package henry.savaryjackson.javatetris.GUI;
 
+import com.google.gson.JsonObject;
+import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
 import java.awt.Color;
 import java.awt.Font;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
+import org.springframework.web.reactive.function.client.WebClientRequestException;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 
 public class Screen extends JFrame{
@@ -54,13 +57,40 @@ public class Screen extends JFrame{
 	
 	//setAccount
 	this.token = token;
-	Logger.getGlobal().log(Level.INFO , "token = {0}", this.token);
 	this.parent = parent;
+	
+	
 	
 	//init tetris grids
 	grid = new TetrisGrid(6,6);
 	hold = new TetrisGrid(6,6);
-	screen = new TetrisScreen(10, 24);
+	screen = new TetrisScreen(10, 24, token);
+	
+	try {
+	    JsonObject userData = APIUtils.getInfo(this.token);
+
+	    if (userData.has("high_score")) {
+		highScore = userData.getAsJsonPrimitive("high_score").getAsInt();
+		screen.setHighScore(highScore);
+		
+	    }
+	} catch (NullPointerException | WebClientRequestException ex) {
+	    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+	} catch (WebClientResponseException ex) {
+	    JsonObject body = ex.getResponseBodyAs(JsonObject.class);
+	    if (body == null) {
+		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		return;
+	    }
+	    if (body.has("Status")) {
+		JOptionPane.showMessageDialog(this, body.getAsJsonPrimitive("Status").getAsString(), "Error", JOptionPane.ERROR_MESSAGE);
+
+	    } else {
+		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+	    }
+
+	}
 	
 	initUI();
 	
@@ -161,14 +191,15 @@ public class Screen extends JFrame{
 	
 	
 	//setting fonts
-	lblNextPiece.setFont(new Font("Futura", Font.BOLD, 20));
-	lblLevel.setFont(new Font("Futura", Font.BOLD, 20));
-	lblLines.setFont(new Font("Futura", Font.BOLD, 20));
-	lblScore.setFont(new Font("Futura", Font.BOLD, 20));
-	lblHold.setFont(new Font("Futura", Font.BOLD, 20));
-	btnPlay.setFont(new Font("Futura", Font.BOLD, 20));
-	btnStop.setFont(new Font("Futura", Font.BOLD, 20));
-	btnUserDetails.setFont(new Font("Futura", Font.BOLD, 20));
+	lblNextPiece.setFont(new Font("Futura", Font.BOLD, 18));
+	lblHighscore.setFont(new Font("Futura", Font.BOLD, 18));
+	lblLevel.setFont(new Font("Futura", Font.BOLD, 18));
+	lblLines.setFont(new Font("Futura", Font.BOLD, 18));
+	lblScore.setFont(new Font("Futura", Font.BOLD, 18));
+	lblHold.setFont(new Font("Futura", Font.BOLD, 18));
+	btnPlay.setFont(new Font("Futura", Font.BOLD, 18));
+	btnStop.setFont(new Font("Futura", Font.BOLD, 18));
+	btnUserDetails.setFont(new Font("Futura", Font.BOLD, 18));
 	
 	pack();
 	updateUI();
@@ -176,6 +207,7 @@ public class Screen extends JFrame{
     
     private void btnUserDetailsActionPerformed(java.awt.event.ActionEvent evt){
 	this.setVisible(false);
+	this.screen.setPaused(true);
 	UserDetails userDetails = new UserDetails(this, this.token);
 	userDetails.setVisible(true);
     }
@@ -196,7 +228,7 @@ public class Screen extends JFrame{
 	lblScore.setText(String.format("Score: %d", screen.getPoints()));
 	lblLines.setText(String.format("Lines: %d" , screen.getLinesCleared()));
 	lblLevel.setText(String.format("Level: %d" , screen.getLevel()));
-	lblHighscore.setText(String.format("High Score: %d", this.highScore));
+	lblHighscore.setText(String.format("High Score: %d", screen.getHighScore()));
 	if (screen.isPaused()){
 	    btnStop.setText("Quit");
 	}
