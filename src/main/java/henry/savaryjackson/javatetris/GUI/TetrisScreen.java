@@ -1,23 +1,15 @@
 package henry.savaryjackson.javatetris.GUI;
 
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import henry.savaryjackson.javatetris.Main.Login;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.Timer;
 import henry.savaryjackson.javatetris.utils.Piece;
 import henry.savaryjackson.javatetris.utils.Utils;
-import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
-import javax.inject.Inject;
-import javax.swing.JOptionPane;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 /**
  *
