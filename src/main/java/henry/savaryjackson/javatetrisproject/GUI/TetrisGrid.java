@@ -44,8 +44,6 @@ public class TetrisGrid extends javax.swing.JPanel {
 	
     }
     
-
-    
     public void drawTetrominoe(tetrominoes t, int cX, int cY){
 	List<int[]> blocks = Piece.tetrStructure.get(t);
 	Color color = Piece.tetrColour.get(t);

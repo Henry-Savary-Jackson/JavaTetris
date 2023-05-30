@@ -82,6 +82,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			    fixPiece();
 			    //updates the surface on which falling onto causes block to become solid
 			    updateSurface(getPiece().getBottomSpan()[0] + getPiece().cX, getPiece().getBottomSpan()[1] + getPiece().cX);
+			   
 			    //generate new piece and next one randomly
 			    createPiece(getNextTetrominoe());
 			    drawPiece();
@@ -99,6 +100,9 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 			    level = 2;
 			    updateDelay(level);
 			    incrScore(lines);
+			    
+			    // update the score counter of the main screen
+			    ApplicationContext.getMainScreen().updateUI();
 
 			    if (!switchable) {
 				switchable = true;
@@ -127,11 +131,13 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     private void holdPiece() {
 
 	if (hold == null) {
+	    // if there is no tetrominoe in reserve
 	    clearPiece();
 	    hold = p.getTetr();
 	    createPiece(getNextTetrominoe());
 	    drawPiece();
 	} else if (switchable) {
+	    // if there is and the user hasn't already switched
 	    clearPiece();
 	    Piece.tetrominoes tTemp = p.getTetr();
 	    createPiece(hold);
@@ -147,6 +153,8 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	initTiles();
 	updateSurface(0, w - 1);
 	createPiece(Utils.randTetrominoe());
+	hold = null;
+	ApplicationContext.getMainScreen().getHold().initTiles();
 	clock.start();
 	inSession = true;
 	paused = false;
@@ -239,6 +247,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     // updates the list of blocks on the surface withing a range
     private void updateSurface(int xBegin, int xEnd) {
 	Iterator<int[]> it = surfaceBlocks.iterator();
+	// remove all the registers for surface blocks
 	while (it.hasNext()) {
 	    int[] next = it.next();
 	    if (next[0] >= xBegin && next[0] <= xEnd) {
@@ -246,6 +255,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	    }
 	}
 
+	// update the list of surfce tile in that ranges
 	for (int x = xBegin; x <= xEnd; x++) {
 	    for (int y = 0; y <= highestBlock; y++) {
 		if (grid[x][y + 1] == 0) {
@@ -260,6 +270,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 
     //code for handling a quick drop
     private void quickDrop() {
+	// the range of the shadow that the tetris piece would cast
 	int[] span = getPiece().getBottomSpan();
 	int yLowestHeightDiff = Integer.MAX_VALUE;
 	//within the x-range of the piece that faces the bottom
