@@ -6,7 +6,6 @@ package henry.savaryjackson.javatetrisproject.Main;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import henry.savaryjackson.javatetrisproject.GUI.ApplicationContext;
 import javax.swing.SwingUtilities;
 import henry.savaryjackson.javatetrisproject.utils.WebUtils.APIUtils;
 import henry.savaryjackson.javatetrisproject.GUI.ApplicationContext;
