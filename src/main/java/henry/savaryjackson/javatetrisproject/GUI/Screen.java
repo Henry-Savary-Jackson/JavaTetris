@@ -43,6 +43,9 @@ public class Screen extends JFrame {
 
     private GroupLayout layout;
 
+    private Timer UIupdateClock;
+    
+
     private int highScore = 0;
 
     public Screen() {
@@ -85,6 +88,12 @@ public class Screen extends JFrame {
 
 	initUI();
 
+	//set clock to update the score info
+	UIupdateClock = new Timer(15, (evt) -> {
+	    updateUI();
+	});
+	UIupdateClock.start();
+
 	//change some other settings
 	setDefaultCloseOperation(EXIT_ON_CLOSE);
 	setResizable(false);
@@ -122,7 +131,7 @@ public class Screen extends JFrame {
     private void initUI() {
 	//set borders
 	screen.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-	getGrid().setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+	grid.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	pnlUI.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	pnlHold.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	getContentPane().setBackground(Color.LIGHT_GRAY);
@@ -151,14 +160,16 @@ public class Screen extends JFrame {
 	GroupLayout pnlHoldLayout = new GroupLayout(pnlHold);
 	pnlHoldLayout.setAutoCreateGaps(true);
 
-	pnlHoldLayout.setVerticalGroup(pnlHoldLayout.createSequentialGroup()
+	pnlHoldLayout.setVerticalGroup(
+		pnlHoldLayout.createSequentialGroup()
 			.addComponent(lblHold)
-			.addComponent(getHold(), getHold().getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
+			.addComponent(hold, hold.getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
 	);
 
-	pnlHoldLayout.setHorizontalGroup(pnlHoldLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+	pnlHoldLayout.setHorizontalGroup(
+		pnlHoldLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
 			.addComponent(lblHold)
-			.addComponent(getHold(), 100, GroupLayout.PREFERRED_SIZE, 150)
+			.addComponent(hold, 100, GroupLayout.PREFERRED_SIZE, 150)
 	);
 	pnlHold.setLayout(pnlHoldLayout);
 
@@ -170,7 +181,7 @@ public class Screen extends JFrame {
 	layout.setAutoCreateContainerGaps(true);
 	pnlUILayout.setVerticalGroup(pnlUILayout.createSequentialGroup()
 		.addComponent(lblNextPiece)
-		.addComponent(getGrid(), getGrid().getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
+		.addComponent(grid, grid.getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
 		.addGap(100)
 		.addComponent(lblLevel)
 		.addComponent(lblLines)
@@ -183,7 +194,7 @@ public class Screen extends JFrame {
 
 	pnlUILayout.setHorizontalGroup(pnlUILayout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		.addComponent(lblNextPiece)
-		.addComponent(getGrid(), 100, GroupLayout.PREFERRED_SIZE, 150)
+		.addComponent(grid, 100, GroupLayout.PREFERRED_SIZE, 150)
 		.addGap(100)
 		.addComponent(lblLevel)
 		.addComponent(lblLines)
@@ -246,7 +257,7 @@ public class Screen extends JFrame {
 	}
     }
 
-    public void updateUI() {
+    private void updateUI() {
 	// update lablels
 	lblScore.setText(String.format("Score: %d", screen.getPoints()));
 	lblLines.setText(String.format("Lines: %d", screen.getLinesCleared()));
@@ -258,11 +269,11 @@ public class Screen extends JFrame {
 	    btnStop.setText("Quit");
 	}
 	if (!screen.isPaused()) {
-	    getGrid().initTiles();
-	    getGrid().drawTetrominoe(screen.getNextTetrominoe(), Math.floorDiv(getGrid().getW(), 2), Math.floorDiv(getGrid().getH(), 2));
+	    grid.initTiles();
+	    grid.drawTetrominoe(screen.getNextTetrominoe(), Math.floorDiv(grid.getW(), 2), Math.floorDiv(grid.getH(), 2));
 	    if (screen.getHold() != null) {
-		getHold().initTiles();
-		getHold().drawTetrominoe(screen.getHold(), Math.floorDiv(getHold().getW(), 2), Math.floorDiv(getHold().getH(), 2));
+		hold.initTiles();
+		hold.drawTetrominoe(screen.getHold(), Math.floorDiv(hold.getW(), 2), Math.floorDiv(hold.getH(), 2));
 	    }
 
 	}
@@ -287,20 +298,6 @@ public class Screen extends JFrame {
 	}
 	screen.setInSession(true);
 
-    }
-
-    /**
-     * @return the grid
-     */
-    public TetrisGrid getGrid() {
-	return grid;
-    }
-
-    /**
-     * @return the hold
-     */
-    public TetrisGrid getHold() {
-	return hold;
     }
 
 

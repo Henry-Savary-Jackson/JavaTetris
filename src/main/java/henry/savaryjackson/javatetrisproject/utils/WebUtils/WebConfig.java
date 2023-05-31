@@ -14,7 +14,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.net.ssl.SSLException;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;    
+import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import javax.net.ssl.TrustManagerFactory;
 import org.springframework.http.client.reactive.ClientHttpConnector;
@@ -28,7 +28,7 @@ import reactor.netty.http.client.HttpClient;
  */
 public class WebConfig {
 
-    public static final String trustStorePassword = System.getenv("tetris_trustore_password");
+    public static final String trustStorePassword = "adulthood25";
 
     public static WebClient getWebClient() {
 	return WebClient.builder().clientConnector(getClientHttpConnector()).build();
@@ -40,7 +40,6 @@ public class WebConfig {
 
 	KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
 	truststore.load(truststoreInputStream, trustStorePassword.toCharArray());
-	Logger.getGlobal().info(trustStorePassword);
 
 	TrustManagerFactory trustManagerFactory = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
 	trustManagerFactory.init(truststore);
@@ -59,7 +58,13 @@ public class WebConfig {
 			sslContextSpec.sslContext(getSSLContext());
 		    } catch (SSLException ex) {
 			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
-		    } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException ex) {
+		    } catch (KeyStoreException ex) {
+			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
+		    } catch (IOException ex) {
+			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
+		    } catch (CertificateException ex) {
+			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
+		    } catch (NoSuchAlgorithmException ex) {
 			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
 		    }
 		});

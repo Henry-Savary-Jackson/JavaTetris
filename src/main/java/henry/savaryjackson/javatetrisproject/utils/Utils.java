@@ -14,7 +14,7 @@ public class Utils {
     }
     
     public static boolean notTaken(byte[][] grid, Piece p ){
-	return p.getBlocks().stream().allMatch((block)-> { return pieceNotTaken(grid, block.getX()+ p.cX, block.getY()+ p.cY);});
+	return p.getBlocks().stream().allMatch((block)-> { return pieceNotTaken(grid, block[0]+ p.cX, block[1]+ p.cY);});
     }
     
     public static Piece.tetrominoes randTetrominoe(){
