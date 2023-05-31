@@ -12,7 +12,9 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import henry.savaryjackson.javatetris.utils.Piece.tetrominoes;
 import java.awt.Dimension;
+import java.util.HashSet;
 import java.util.List;
+import java.util.logging.Logger;
 
 /**
  *
@@ -93,6 +95,7 @@ public class TetrisGrid extends javax.swing.JPanel {
 	    for (int y = 1; y < getGrid()[0].length; y++){
 		grid[x][y] = 0;
 		drawTile(x, y, emptyColour);
+		
 	    }
 	}
     }

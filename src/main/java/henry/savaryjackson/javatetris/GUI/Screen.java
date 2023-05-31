@@ -131,7 +131,7 @@ public class Screen extends JFrame {
     private void initUI() {
 	//set borders
 	screen.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-	grid.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+	getNextPieceGrid().setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	pnlUI.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	pnlHold.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 	getContentPane().setBackground(Color.LIGHT_GRAY);
@@ -160,16 +160,14 @@ public class Screen extends JFrame {
 	GroupLayout pnlHoldLayout = new GroupLayout(pnlHold);
 	pnlHoldLayout.setAutoCreateGaps(true);
 
-	pnlHoldLayout.setVerticalGroup(
-		pnlHoldLayout.createSequentialGroup()
+	pnlHoldLayout.setVerticalGroup(pnlHoldLayout.createSequentialGroup()
 			.addComponent(lblHold)
-			.addComponent(hold, hold.getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
+			.addComponent(getHold(), getHold().getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
 	);
 
-	pnlHoldLayout.setHorizontalGroup(
-		pnlHoldLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
+	pnlHoldLayout.setHorizontalGroup(pnlHoldLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
 			.addComponent(lblHold)
-			.addComponent(hold, 100, GroupLayout.PREFERRED_SIZE, 150)
+			.addComponent(getHold(), 100, GroupLayout.PREFERRED_SIZE, 150)
 	);
 	pnlHold.setLayout(pnlHoldLayout);
 
@@ -181,7 +179,7 @@ public class Screen extends JFrame {
 	layout.setAutoCreateContainerGaps(true);
 	pnlUILayout.setVerticalGroup(pnlUILayout.createSequentialGroup()
 		.addComponent(lblNextPiece)
-		.addComponent(grid, grid.getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
+		.addComponent(getNextPieceGrid(), getNextPieceGrid().getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
 		.addGap(100)
 		.addComponent(lblLevel)
 		.addComponent(lblLines)
@@ -194,7 +192,7 @@ public class Screen extends JFrame {
 
 	pnlUILayout.setHorizontalGroup(pnlUILayout.createParallelGroup(GroupLayout.Alignment.CENTER)
 		.addComponent(lblNextPiece)
-		.addComponent(grid, 100, GroupLayout.PREFERRED_SIZE, 150)
+		.addComponent(getNextPieceGrid(), 100, GroupLayout.PREFERRED_SIZE, 150)
 		.addGap(100)
 		.addComponent(lblLevel)
 		.addComponent(lblLines)
@@ -257,7 +255,7 @@ public class Screen extends JFrame {
 	}
     }
 
-    private void updateUI() {
+    public void updateUI() {
 	// update lablels
 	lblScore.setText(String.format("Score: %d", screen.getPoints()));
 	lblLines.setText(String.format("Lines: %d", screen.getLinesCleared()));
@@ -269,11 +267,11 @@ public class Screen extends JFrame {
 	    btnStop.setText("Quit");
 	}
 	if (!screen.isPaused()) {
-	    grid.initTiles();
-	    grid.drawTetrominoe(screen.getNextTetrominoe(), Math.floorDiv(grid.getW(), 2), Math.floorDiv(grid.getH(), 2));
+	    getNextPieceGrid().initTiles();
+	    getNextPieceGrid().drawTetrominoe(screen.getNextTetrominoe(), Math.floorDiv(getNextPieceGrid().getW(), 2), Math.floorDiv(getNextPieceGrid().getH(), 2));
 	    if (screen.getHold() != null) {
-		hold.initTiles();
-		hold.drawTetrominoe(screen.getHold(), Math.floorDiv(hold.getW(), 2), Math.floorDiv(hold.getH(), 2));
+		getHold().initTiles();
+		getHold().drawTetrominoe(screen.getHold(), Math.floorDiv(getHold().getW(), 2), Math.floorDiv(getHold().getH(), 2));
 	    }
 
 	}
@@ -298,6 +296,20 @@ public class Screen extends JFrame {
 	}
 	screen.setInSession(true);
 
+    }
+
+    /**
+     * @return the grid
+     */
+    public TetrisGrid getNextPieceGrid() {
+	return grid;
+    }
+
+    /**
+     * @return the hold
+     */
+    public TetrisGrid getHold() {
+	return hold;
     }
 
 

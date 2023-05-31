@@ -5,6 +5,7 @@ import java.util.Random;
 
 public class Utils {
     
+    
     public static boolean pieceNotOutOfBounds(byte[][] grid, int xIndex ,int yIndex){
 	return ((-1<xIndex) &&( xIndex< grid.length) && (0 < yIndex)&&(yIndex < grid[0].length));
     }
@@ -23,5 +24,4 @@ public class Utils {
 	return Piece.tetrominoes.values()[rIndex];
 	
     }
-    
 }

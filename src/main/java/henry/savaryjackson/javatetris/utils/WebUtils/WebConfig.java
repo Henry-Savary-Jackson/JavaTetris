@@ -36,7 +36,7 @@ public class WebConfig {
 
     public static SslContext getSSLContext() throws SSLException, KeyStoreException, IOException, CertificateException, NoSuchAlgorithmException {
 	
-	InputStream truststoreInputStream = new FileInputStream("/Users/hsavaryjackson/NetBeansProjects/JavaTetris/keystore.p12");
+	InputStream truststoreInputStream = WebConfig.class.getResourceAsStream("/keystore.p12");
 
 	KeyStore truststore = KeyStore.getInstance(KeyStore.getDefaultType());
 	truststore.load(truststoreInputStream, trustStorePassword.toCharArray());

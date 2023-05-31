@@ -11,11 +11,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Logger;
 
+
+
 /**
  *
  * @author hsavaryjackson
  */
 public class TetrisScreen extends TetrisGrid implements KeyListener {
+    
 
     private Timer leftTimer;
     private Timer rightTimer;
@@ -148,6 +151,8 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	initTiles();
 	updateSurface(0, w - 1);
 	createPiece(Utils.randTetrominoe());
+	ApplicationContext.getMainScreen().getHold().initTiles();
+	hold = null;
 	clock.start();
 	inSession = true;
 	paused = false;
