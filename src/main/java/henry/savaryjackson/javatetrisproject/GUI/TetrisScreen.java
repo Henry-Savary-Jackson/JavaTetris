@@ -78,7 +78,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 				//if hits top then gameover
 				gameOver();
 			    }
-
+			    System.out.println("wtf");
 			    fixPiece();
 			    //updates the surface on which falling onto causes block to become solid
 			    updateSurface(getPiece().getBottomSpan()[0] + getPiece().cX, getPiece().getBottomSpan()[1] + getPiece().cX);
@@ -93,11 +93,10 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 
 			    //update any lines that have been cleared by user
 			    int lines = clearAllFullLines();
+			    Logger.getGlobal().info(String.valueOf(lines));
 			    updateDelay(level);
 			    linesCleared += lines;
-			    //level = 1+ Math.divideExact(linesCleared, 5);
-			    // TODO: fix this shit
-			    level = 2;
+			    level = 1+ Math.divideExact(linesCleared, 5);
 			    updateDelay(level);
 			    incrScore(lines);
 			    
@@ -155,6 +154,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	createPiece(Utils.randTetrominoe());
 	hold = null;
 	ApplicationContext.getMainScreen().getHold().initTiles();
+	Logger.getGlobal().info(String.valueOf(hold));
 	clock.start();
 	inSession = true;
 	paused = false;

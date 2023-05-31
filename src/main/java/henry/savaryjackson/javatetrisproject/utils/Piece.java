@@ -245,9 +245,7 @@ public class Piece {
 	return bottomBlocks;
     }
 
-    /**
-     * @return the colour
-     */
+
     public Color getColour() {
 	return colour;
     }
