@@ -6,9 +6,10 @@ package henry.savaryjackson.javatetrisproject.Main;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import henry.savaryjackson.javatetris.GUI.ApplicationContext;
+import henry.savaryjackson.javatetrisproject.GUI.ApplicationContext;
 import javax.swing.SwingUtilities;
-import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
+import henry.savaryjackson.javatetrisproject.utils.WebUtils.APIUtils;
+import henry.savaryjackson.javatetrisproject.GUI.ApplicationContext;
 import java.awt.event.ItemEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
