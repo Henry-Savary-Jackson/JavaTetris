@@ -3,7 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JPanel.java to edit this template
  */
 
-package henry.savaryjackson.javatetris.GUI;
+package henry.savaryjackson.javatetrisproject.GUI;
 
 import henry.savaryjackson.javatetris.utils.Piece;
 import java.awt.Color;

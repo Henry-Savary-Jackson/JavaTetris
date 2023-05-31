@@ -2,13 +2,14 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-package henry.savaryjackson.javatetris.GUI;
+package henry.savaryjackson.javatetrisproject.GUI;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import henry.savaryjackson.javatetris.Main.Login;
-import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
+import henry.savaryjackson.javatetrisproject.Main.Login;
+import henry.savaryjackson.javatetrisproject.utils.WebUtils.APIUtils;
 import javax.swing.JOptionPane;
+
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 

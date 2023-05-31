@@ -1,5 +1,5 @@
 
-package henry.savaryjackson.javatetris.utils;
+package henry.savaryjackson.javatetrisproject.utils;
 
 import java.util.Random;
 
