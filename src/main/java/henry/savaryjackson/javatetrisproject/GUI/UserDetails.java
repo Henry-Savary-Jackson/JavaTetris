@@ -6,7 +6,7 @@ package henry.savaryjackson.javatetrisproject.GUI;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
+import henry.savaryjackson.javatetrisproject.utils.WebUtils.APIUtils;
 import javax.swing.JOptionPane;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;

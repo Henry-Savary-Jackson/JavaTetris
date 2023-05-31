@@ -6,7 +6,7 @@ package henry.savaryjackson.javatetrisproject.GUI;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import henry.savaryjackson.javatetris.utils.WebUtils.APIUtils;
+import henry.savaryjackson.javatetrisproject.utils.WebUtils.APIUtils;
 import java.awt.Color;
 import java.awt.Font;
 import javax.swing.BorderFactory;

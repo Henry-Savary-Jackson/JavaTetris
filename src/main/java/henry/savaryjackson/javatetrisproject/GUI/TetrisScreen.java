@@ -1,10 +1,10 @@
-package henry.savaryjackson.javatetris.GUI;
+package henry.savaryjackson.javatetrisproject.GUI;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.Timer;
-import henry.savaryjackson.javatetris.utils.Piece;
-import henry.savaryjackson.javatetris.utils.Utils;
+import henry.savaryjackson.javatetrisproject.utils.Piece;
+import henry.savaryjackson.javatetrisproject.utils.Utils;
 import java.awt.Color;
 import java.util.ArrayList;
 import java.util.Iterator;

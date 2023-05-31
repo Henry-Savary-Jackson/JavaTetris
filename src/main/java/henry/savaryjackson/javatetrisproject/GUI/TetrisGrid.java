@@ -5,12 +5,12 @@
 
 package henry.savaryjackson.javatetrisproject.GUI;
 
-import henry.savaryjackson.javatetris.utils.Piece;
+import henry.savaryjackson.javatetrisproject.utils.Piece;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
-import henry.savaryjackson.javatetris.utils.Piece.tetrominoes;
+import henry.savaryjackson.javatetrisproject.utils.Piece.tetrominoes;
 import java.awt.Dimension;
 import java.util.HashSet;
 import java.util.List;
