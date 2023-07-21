@@ -1,5 +1,6 @@
 package henry.savaryjackson.javatetrisproject.GUI;
 
+import henry.savaryjackson.javatetrisproject.utils.AudioUtils.MusicPlayer;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import javax.swing.Timer;
@@ -50,29 +51,14 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     public TetrisScreen(int w, int h) {
 	super(w, h);
 	paused = true;
-
-	leftTimer = new Timer(KEY_DELAY, (evt) -> {
-	    movePiece(-1, 0);
-	});
-	leftTimer.setInitialDelay(0);
-	rightTimer = new Timer(KEY_DELAY, (evt) -> {
-	    movePiece(1, 0);
-	});
-	rightTimer.setInitialDelay(0);
-	upTimer = new Timer(KEY_DELAY, (evt) -> {
-	    rotatePiece(Piece.ROT_DIR.Clockwise);
-	});
-	upTimer.setInitialDelay(0);
-	downTimer = new Timer(KEY_DELAY, (evt) -> {
-	    rotatePiece(Piece.ROT_DIR.CounterClockwise);
-	});
-	downTimer.setInitialDelay(0);
+	
+	initInputTimers();
 
 	inSession = false;
 	createPiece(Utils.randTetrominoe());
 	updateSurface(0, w - 1);
 
-	//this timer iswhere all of the game logic is running for the screen
+	//this timer is where all of the game logic is running for the screen
 	clock = new Timer(delay,
 		(evt) -> {
 		    if (!isPaused()) {
@@ -96,13 +82,24 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 
 			    //update any lines that have been cleared by user
 			    int lines = clearAllFullLines();
-			    updateDelay(level);
+			    
+			   
+				    
 			    linesCleared += lines;
-			    //level = 1+ Math.divideExact(linesCleared, 5);
-			    // TODO: fix this shit
-			    level = 2;
+			    updateDelay(level);
+			    
+			    // update the level
+			    level =  1+ Math.divideExact(linesCleared, 5);
 			    updateDelay(level);
 			    incrScore(lines);
+			    
+			    if (lines > 0)
+			    {
+				Logger.getGlobal().info(String.valueOf(points));
+				ApplicationContext.getMainScreen().sendScore(points);
+			    }
+			    
+			    ApplicationContext.getMainScreen().updateUI();
 
 			    if (!switchable) {
 				switchable = true;
@@ -115,6 +112,7 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 		    }
 		}
 	);
+	// set up clock
 	updateDelay(level);
 	clock.setInitialDelay(0);
 	clock.start();
@@ -127,15 +125,44 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	setVisible(true);
 
     }
+    
+    private void initInputTimers(){
+	// init timers for user input
+	leftTimer = new Timer(KEY_DELAY, (evt) -> {
+	    movePiece(-1, 0);
+	});
+	
+	leftTimer.setInitialDelay(0);
+	
+	rightTimer = new Timer(KEY_DELAY, (evt) -> {
+	    movePiece(1, 0);
+	});
+	
+	rightTimer.setInitialDelay(0);
+	
+	upTimer = new Timer(KEY_DELAY, (evt) -> {
+	    rotatePiece(Piece.ROT_DIR.Clockwise);
+	});
+	
+	upTimer.setInitialDelay(0);
+	
+	downTimer = new Timer(KEY_DELAY, (evt) -> {
+	    rotatePiece(Piece.ROT_DIR.CounterClockwise);
+	});
+	
+	downTimer.setInitialDelay(0);
+    }
 
     private void holdPiece() {
 
 	if (hold == null) {
+	    // if there is no previous swap
 	    clearPiece();
 	    hold = p.getTetr();
 	    createPiece(getNextTetrominoe());
 	    drawPiece();
 	} else if (switchable) {
+	    // if there is and there user hasn't already switched
 	    clearPiece();
 	    Piece.tetrominoes tTemp = p.getTetr();
 	    createPiece(hold);
@@ -144,19 +171,42 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 	    switchable = false;
 
 	}
+	
+	Screen mainScreen = ApplicationContext.getMainScreen();
+	TetrisGrid holdGrid = mainScreen.getHold();
+	// update the hold grid of the main screen
+	ApplicationContext.getMainScreen().getHold().initTiles();
+	holdGrid.drawTetrominoe(hold, Math.floorDiv(holdGrid.getW(), 2), Math.floorDiv(holdGrid.getH(), 2));
+
 
     }
 
     public void restart() {
+	level = 1;
+	points = 0;
+	linesCleared = 0;
+	ApplicationContext.getMainScreen().updateUI();
+	// clear all solid blocks
 	initTiles();
 	updateSurface(0, w - 1);
+	
+	// create starting piece
 	createPiece(Utils.randTetrominoe());
 	ApplicationContext.getMainScreen().getHold().initTiles();
 	hold = null;
 	clock.start();
 	inSession = true;
+	resume();
+    }
+    
+    public void resume(){
 	paused = false;
-
+	MusicPlayer.playMusic();
+    }
+    
+    public void pause(){
+	paused = true;
+	MusicPlayer.pauseMusic();
     }
 
     //generates the delay between falling updates depending on the level the user is on.
@@ -174,19 +224,38 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
 
     //code for a game over once it occurs
     public void gameOver() {
+	// stop the jams
+	MusicPlayer.endMusic();
 	clock.stop();
 	//the current session is now over and the game is paused
 	setInSession(false);
 	setPaused(true);
 	Logger.getGlobal().info("game over");
 	// make the main screen update with new score to server
-	ApplicationContext.getMainScreen().sendScore(this.points);
+	
+	Thread scoreSendingThread = new Thread( () -> {
+	    ApplicationContext.getMainScreen().sendScore(this.points);}
+	);
+	
+	scoreSendingThread.start();
 	
     }
 
     //updates the next piece the game will spawn and displays it on the preview grid
     private void updateNextTetr() {
+	// get main screen and its next peice grid
+	
 	nextTetrominoe = Utils.randTetrominoe();
+	
+	Screen mainScreen = ApplicationContext.getMainScreen();
+	if (mainScreen == null){
+	    return;
+	}
+	TetrisGrid nextPieceGrid = mainScreen.getNextPieceGrid();
+	// redraw it with new tetrominoe
+	nextPieceGrid.initTiles();
+	nextPieceGrid.drawTetrominoe(nextTetrominoe, Math.floorDiv(nextPieceGrid.getW(), 2), Math.floorDiv(nextPieceGrid.getH(), 2));
+	
     }
 
     //sets the piece block positions to solid tiles
