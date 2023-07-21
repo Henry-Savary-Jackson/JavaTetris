@@ -9,6 +9,8 @@ import com.google.gson.JsonParser;
 import javax.swing.SwingUtilities;
 import henry.savaryjackson.javatetrisproject.utils.WebUtils.APIUtils;
 import henry.savaryjackson.javatetrisproject.GUI.ApplicationContext;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -21,14 +23,20 @@ import org.springframework.web.reactive.function.client.WebClientResponseExcepti
  * @author hsavaryjackson
  */
 
-public class Login extends javax.swing.JFrame {
+public class Login extends javax.swing.JFrame implements ComponentListener {
 
     /**
      * Creates new form Login
      */
+    
+    // shows that this object is currently in the process of logging in a user, so no other threads may do anything relating to logging in
+    // NOTE : use in a synchronised fahsion with synchornised keyword
+    
     public Login() {
 	initComponents();
 	Logger.getGlobal().setLevel(Level.INFO);
+	addComponentListener(this);
+	
     }
 
     /**
@@ -146,31 +154,57 @@ public class Login extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignInActionPerformed
-	// TODO add your handling code here:
-
-	String username = edtUsername.getText();
-	if (username.equals("")) {
-	    Logger.getGlobal().warning("Please enter a username");
-	    JOptionPane.showMessageDialog(this, "Please enter a username", "Error", JOptionPane.ERROR_MESSAGE);
-	    return;
-	}
-
-	String password = String.valueOf(edtPassword.getPassword());
-	if (password.equals("")) {
-	    Logger.getGlobal().warning("Please enter password");
-	    JOptionPane.showMessageDialog(this, "Please enter password", "Error", JOptionPane.ERROR_MESSAGE);
-	    return;
-	}
-
-	String token = "";
+    
+    private String signUp(String username, String password){
+	
 	try {
-	    token = APIUtils.login(username, password);
+	    btnSignUp.setEnabled(false);
+	    btnSignIn.setEnabled(false);
+	    String token = APIUtils.SignUp(username, password);
+	    return token;
+	} catch (NullPointerException | WebClientRequestException e) {
+	    JOptionPane.showMessageDialog(rootPane, e.getMessage(),
+		     "Error", JOptionPane.ERROR_MESSAGE);
+	    return null;
+	    
+	} catch (WebClientResponseException ex) {
+	    Logger.getGlobal().warning(ex.getMessage());
+	    
+	    JsonObject responseJson = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
+	    
+	    if (responseJson.has("Status")) {
+		JOptionPane.showMessageDialog(
+			rootPane, responseJson.get("Status").getAsJsonPrimitive().getAsString(),
+			 "Error", JOptionPane.ERROR_MESSAGE);
+	    } else {
+		JOptionPane.showMessageDialog(rootPane, ex.getMessage(),
+			"Error", JOptionPane.ERROR_MESSAGE);
+	    }
+	    Logger.getGlobal().warning(ex.getMessage());
+	    
+	    return null;
+
+	}
+	finally{
+	    btnSignUp.setEnabled(true);
+	    btnSignIn.setEnabled(true);
+	}
+    }
+    
+    private String login(String username, String password){
+
+	try {
+	    btnSignUp.setEnabled(false);
+	    btnSignIn.setEnabled(false);
+	    String token = APIUtils.login(username, password);
+	    return token;
 	} catch (NullPointerException | WebClientRequestException e) {
 	    // dialog
 	    JOptionPane.showMessageDialog(rootPane, e.getMessage(),
 		     "Error", JOptionPane.ERROR_MESSAGE);
-	    return;
+	    
+	    return null;
+
 	} catch (WebClientResponseException ex) {
 	    Logger.getGlobal().warning(ex.getMessage());
 	    JsonObject responseJson = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
@@ -182,11 +216,39 @@ public class Login extends javax.swing.JFrame {
 			 "Error", JOptionPane.ERROR_MESSAGE);
 	    }
 	    Logger.getGlobal().warning(ex.getMessage());
-	    return;
+	    return null;
+	}
+	finally{
+	    btnSignUp.setEnabled(true);
+	    btnSignIn.setEnabled(true);
+	}
+    }
+    
+    private void btnSignInActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSignInActionPerformed
+	// TODO add your handling code here:
 
+	final String username = edtUsername.getText();
+	if (username.equals("")) {
+	    Logger.getGlobal().warning("Please enter a username");
+	    JOptionPane.showMessageDialog(this, "Please enter a username", "Error", JOptionPane.ERROR_MESSAGE);
+	    return;
 	}
 
-	startGame(token);
+	final String password = String.valueOf(edtPassword.getPassword());
+	if (password.equals("")) {
+	    Logger.getGlobal().warning("Please enter password");
+	    JOptionPane.showMessageDialog(this, "Please enter password", "Error", JOptionPane.ERROR_MESSAGE);
+	    return;
+	}
+
+	 new Thread(()->
+	{
+	    String token = login(username, password);
+	    if (token == null)
+		return;
+	    startGame(token);
+	
+	}).start();
 
     }//GEN-LAST:event_btnSignInActionPerformed
 
@@ -213,30 +275,18 @@ public class Login extends javax.swing.JFrame {
 	    JOptionPane.showMessageDialog(this, "Password must be at least 8 characters long.", "Error", JOptionPane.ERROR_MESSAGE);
 	    return;
 	}
+	
+	// note that the whole game is now running on this child thread
+	new Thread(()->
+	{
+	    
+	    String token = signUp(username, password);
+	    if (token == null)
+		return;
+	    startGame(token);
+	
+	}).start();
 
-	String token = "";
-	try {
-	    token = APIUtils.SignUp(username, password);
-	} catch (NullPointerException | WebClientRequestException e) {
-	    JOptionPane.showMessageDialog(rootPane, e.getMessage(),
-		     "Error", JOptionPane.ERROR_MESSAGE);
-	    return;
-	} catch (WebClientResponseException ex) {
-	    Logger.getGlobal().warning(ex.getMessage());
-	    JsonObject responseJson = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
-	    if (responseJson.has("Status")) {
-		JOptionPane.showMessageDialog(rootPane, responseJson.get("Status").getAsJsonPrimitive().getAsString(),
-			 "Error", JOptionPane.ERROR_MESSAGE);
-	    } else {
-		JOptionPane.showMessageDialog(rootPane, ex.getMessage(),
-			 "Error", JOptionPane.ERROR_MESSAGE);
-	    }
-	    Logger.getGlobal().warning(ex.getMessage());
-	    return;
-
-	}
-
-	startGame(token);
     }//GEN-LAST:event_btnSignUpActionPerformed
 
     private void edtPasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_edtPasswordActionPerformed
@@ -315,4 +365,27 @@ public class Login extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel lblUsername;
     // End of variables declaration//GEN-END:variables
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentMoved(ComponentEvent e) {
+    }
+
+    @Override
+    public void componentShown(ComponentEvent e) {
+	// once 
+	if (e.getComponent() == this){
+	    edtUsername.setText("");
+	    edtPassword.setText("");
+	}
+    }
+
+    @Override
+    public void componentHidden(ComponentEvent e) {
+    }
+
+
 }

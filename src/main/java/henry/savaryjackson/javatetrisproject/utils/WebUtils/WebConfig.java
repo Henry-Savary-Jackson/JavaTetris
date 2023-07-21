@@ -6,7 +6,6 @@ package henry.savaryjackson.javatetrisproject.utils.WebUtils;
 
 import io.netty.handler.ssl.SslContext;
 import io.netty.handler.ssl.SslContextBuilder;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStoreException;
@@ -58,13 +57,7 @@ public class WebConfig {
 			sslContextSpec.sslContext(getSSLContext());
 		    } catch (SSLException ex) {
 			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
-		    } catch (KeyStoreException ex) {
-			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
-		    } catch (IOException ex) {
-			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
-		    } catch (CertificateException ex) {
-			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
-		    } catch (NoSuchAlgorithmException ex) {
+		    } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException ex) {
 			Logger.getLogger(WebConfig.class.getName()).log(Level.SEVERE, null, ex);
 		    }
 		});

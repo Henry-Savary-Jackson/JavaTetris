@@ -7,33 +7,82 @@ package henry.savaryjackson.javatetrisproject.utils.WebUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.JsonSyntaxException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.logging.Logger;
+import org.bouncycastle.crypto.generators.Argon2BytesGenerator;
+import org.bouncycastle.crypto.params.Argon2Parameters;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClient.ResponseSpec;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 public class APIUtils {
+    private static final Base64.Encoder b64encoder = Base64.getEncoder().withoutPadding();
 
     private static WebClient webClient = WebConfig.getWebClient();
 
-    private static final String domain = "https://localhost:8080";
+    private static final String domain = "https://localhost:8079";
     private static final String changeUsernameEndoint = domain + "/change";
     private static final String loginEndoint = domain + "/login";
     private static final String signUpEndpoint = domain + "/signup";
     private static final String userInfoEndpoint = domain + "/userinfo";
     private static final String updateScoreEndpoint = domain + "/score";
     private static final String deleteUserEndpoint = domain + "/delete";
+    private static final String changePasswordUserEndpoint = domain + "/changePassword";
+    
+    static String encode(byte[] hash, Argon2Parameters parameters) throws IllegalArgumentException {
+		StringBuilder stringBuilder = new StringBuilder();
+		switch (parameters.getType()) {
+		case Argon2Parameters.ARGON2_d:
+			stringBuilder.append("$argon2d");
+			break;
+		case Argon2Parameters.ARGON2_i:
+			stringBuilder.append("$argon2i");
+			break;
+		case Argon2Parameters.ARGON2_id:
+			stringBuilder.append("$argon2id");
+			break;
+		default:
+			throw new IllegalArgumentException("Invalid algorithm type: " + parameters.getType());
+		}
+		stringBuilder.append("$v=").append(parameters.getVersion()).append("$m=").append(parameters.getMemory())
+				.append(",t=").append(parameters.getIterations()).append(",p=").append(parameters.getLanes());
+		if (parameters.getSalt() != null) {
+			stringBuilder.append("$").append(b64encoder.encodeToString(parameters.getSalt()));
+		}
+		stringBuilder.append("$").append(b64encoder.encodeToString(hash));
+		return stringBuilder.toString();
+    }
+
+    public static String hashPassword(String rawPassword) {
+
+	int iterations = 2;
+	int memLimit = 15 * 1024;
+	int hashLength = 64;
+	int parallelism = 1;
+
+	Argon2Parameters.Builder builder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
+		.withIterations(iterations)
+		.withMemoryAsKB(memLimit)
+		.withParallelism(parallelism)
+		.withSalt("123456789".getBytes());
+
+	Argon2BytesGenerator generate = new Argon2BytesGenerator();
+	generate.init(builder.build());
+	byte[] result = new byte[hashLength];
+	generate.generateBytes(rawPassword.getBytes(StandardCharsets.UTF_8), result, 0, result.length);
+	
+	String output = encode(result, builder.build());
+	
+	return output;
+    }
 
     public static String login(String username, String password) throws WebClientResponseException,
 	    NullPointerException, JsonSyntaxException {
-
-	// hashs using argon2id
-	Argon2PasswordEncoder encoder = new Argon2PasswordEncoder(0, 64, 1, 15 * 1024, 2);
-	String hash = encoder.encode(password);
+	String hash = hashPassword(password);
 
 	// create a map of values
 	JsonObject bodyJson = new JsonObject();
@@ -78,9 +127,7 @@ public class APIUtils {
 
 	// ecnrypted password without salt
 	// this is just to add another layer of encryption along with TLS (which is not implemented yet but wait)
-	Argon2PasswordEncoder encoder = new Argon2PasswordEncoder(0, 64, 1, 15 * 1024, 2);
-
-	String hash = encoder.encode(password);
+	String hash = hashPassword(password);
 
 	// create the key value pairs for your request body
 	JsonObject bodyJson = new JsonObject();
@@ -178,6 +225,33 @@ public class APIUtils {
 	Logger.getGlobal().info(response.getBody());
 
 	return responseBody;
+    }
+    
+    public static void changePassword(String token, String oldPassword, String newPassword){
+	
+	String expectedHashOld = hashPassword(oldPassword);
+		
+	String hashNew = hashPassword(newPassword);
+	
+	JsonObject bodyJson = new JsonObject();
+	
+	bodyJson.addProperty("token", token);
+	bodyJson.addProperty("old_password", expectedHashOld);
+	bodyJson.addProperty("new_password", hashNew);
+	
+	ResponseSpec request = WebClient.builder().build()
+		.post()
+		.uri(changePasswordUserEndpoint)
+		.contentType(MediaType.APPLICATION_JSON)
+		.bodyValue(bodyJson.toString())
+		.retrieve();
+	
+	ResponseEntity<JsonObject> response  = request.toEntity(JsonObject.class).block();
+	
+	JsonObject responseBody = response.getBody();
+	
+	Logger.getGlobal().info(response.toString());
+	Logger.getGlobal().info(response.getStatusCode().toString());
     }
 
     public static void deleteUser(String token) {
