@@ -60,6 +60,7 @@ public class UserDetails extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         lblHighScore = new javax.swing.JLabel();
         btnBack = new javax.swing.JButton();
+        btnChangePassword = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -93,6 +94,14 @@ public class UserDetails extends javax.swing.JFrame {
             }
         });
 
+        btnChangePassword.setFont(new java.awt.Font("Futura", 1, 20)); // NOI18N
+        btnChangePassword.setText("Change Password");
+        btnChangePassword.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnChangePasswordActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -108,17 +117,19 @@ public class UserDetails extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jLabel2)
-                        .addGap(226, 226, 226))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(btnChangeUsername)
-                        .addGap(82, 82, 82))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(lblUsername)
-                            .addComponent(lblHighScore))
-                        .addGap(122, 122, 122))))
+                    .addComponent(btnChangePassword)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(jLabel2)
+                            .addGap(226, 226, 226))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                .addComponent(lblUsername)
+                                .addComponent(lblHighScore))
+                            .addGap(122, 122, 122))
+                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                            .addComponent(btnChangeUsername)
+                            .addGap(78, 78, 78)))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -131,9 +142,11 @@ public class UserDetails extends javax.swing.JFrame {
                 .addComponent(jLabel2)
                 .addGap(18, 18, 18)
                 .addComponent(lblHighScore)
-                .addGap(56, 56, 56)
+                .addGap(29, 29, 29)
                 .addComponent(btnChangeUsername)
-                .addGap(42, 42, 42)
+                .addGap(18, 18, 18)
+                .addComponent(btnChangePassword)
+                .addGap(18, 18, 18)
                 .addComponent(btnDeleteAccount)
                 .addContainerGap(27, Short.MAX_VALUE))
         );
@@ -158,11 +171,16 @@ public class UserDetails extends javax.swing.JFrame {
 	    }
 
 	    try {
+		
 		APIUtils.changeUsername(ApplicationContext.getToken(), newUsername);
+		
 	    } catch (NullPointerException | WebClientRequestException ex) {
+		
 		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 		continue;
+		
 	    } catch (WebClientResponseException ex) {
+		
 		JsonObject body = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
 		if (body == null) {
 		    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -205,7 +223,9 @@ public class UserDetails extends javax.swing.JFrame {
 	    try {
 		APIUtils.deleteUser(ApplicationContext.getToken());
 	    } catch (NullPointerException | WebClientRequestException ex) {
+		
 		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		
 	    } catch (WebClientResponseException ex) {
 		JsonObject body = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
 		if (body == null) {
@@ -230,9 +250,68 @@ public class UserDetails extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnDeleteAccountActionPerformed
 
+    private void btnChangePasswordActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnChangePasswordActionPerformed
+        // TODO add your handling code here:
+	//
+	String oldPassword = JOptionPane.showInputDialog(this, "Please enter your old password");
+	
+	
+	if (oldPassword == null) {
+		return;
+	}
+
+	if (oldPassword.equals("")) {
+	    JOptionPane.showMessageDialog(this, "Please enter a password", "Error", JOptionPane.ERROR_MESSAGE);
+	    return;
+	}
+	
+	String newPassword = JOptionPane.showInputDialog(this, "Please enter your new password");
+	
+	if (newPassword == null) {
+		return;
+	}
+
+	if (newPassword.equals("")) {
+	    JOptionPane.showMessageDialog(this, "Please enter a password", "Error", JOptionPane.ERROR_MESSAGE);
+	    return;
+	}
+	
+	if (newPassword.length() < 8){
+	     JOptionPane.showMessageDialog(this, "Your new password must be atleast 8 characters long.", "Error", JOptionPane.ERROR_MESSAGE);
+	    return;
+	}
+
+	try {
+	    APIUtils.changePassword(ApplicationContext.getToken(), oldPassword, newPassword);
+
+	} catch (NullPointerException | WebClientRequestException ex) {
+
+	    JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+	} catch (WebClientResponseException ex) {
+
+	    JsonObject body = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
+
+	    if (body == null) {
+		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		return;
+	    }
+	    if (body.has("Status")) {
+		String status = body.getAsJsonPrimitive("Status").getAsString();
+		JOptionPane.showMessageDialog(this, status, "Error", JOptionPane.ERROR_MESSAGE);
+	    } else {
+		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+
+	    }
+
+	}
+
+    }//GEN-LAST:event_btnChangePasswordActionPerformed
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnBack;
+    private javax.swing.JButton btnChangePassword;
     private javax.swing.JButton btnChangeUsername;
     private javax.swing.JButton btnDeleteAccount;
     private javax.swing.JLabel jLabel2;

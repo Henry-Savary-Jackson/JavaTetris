@@ -12,9 +12,7 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import henry.savaryjackson.javatetrisproject.utils.Piece.tetrominoes;
 import java.awt.Dimension;
-import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Logger;
 
 /**
  *

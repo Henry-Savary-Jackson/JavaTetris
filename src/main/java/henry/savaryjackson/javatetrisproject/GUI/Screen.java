@@ -6,9 +6,11 @@ package henry.savaryjackson.javatetrisproject.GUI;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import henry.savaryjackson.javatetrisproject.utils.AudioUtils.MusicPlayer;
 import henry.savaryjackson.javatetrisproject.utils.WebUtils.APIUtils;
 import java.awt.Color;
 import java.awt.Font;
+import java.util.concurrent.CompletableFuture;
 import javax.swing.BorderFactory;
 import javax.swing.GroupLayout;
 import javax.swing.JButton;
@@ -16,7 +18,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 import javax.swing.border.BevelBorder;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
@@ -43,15 +44,12 @@ public class Screen extends JFrame {
 
     private GroupLayout layout;
 
-    private Timer UIupdateClock;
-    
-
     private int highScore = 0;
 
     public Screen() {
 	super("Tetris");
 
-	
+	MusicPlayer.setUpClip();
 
 	//init tetris grids
 	grid = new TetrisGrid(6, 6);
@@ -88,46 +86,46 @@ public class Screen extends JFrame {
 
 	initUI();
 
-	//set clock to update the score info
-	UIupdateClock = new Timer(15, (evt) -> {
-	    updateUI();
-	});
-	UIupdateClock.start();
-
 	//change some other settings
 	setDefaultCloseOperation(EXIT_ON_CLOSE);
 	setResizable(false);
 	setVisible(true);
     }
-    
-    public void sendScore(int newScore){
-	//update high score on server
-	try {
-	    JsonObject responseJson = APIUtils.updateHighScore(ApplicationContext.getToken(), newScore);
-	    if (responseJson.has("high_score")) {
-		screen.setHighScore(responseJson.getAsJsonPrimitive("high_score").getAsInt());
-	    }
-	} catch (NullPointerException | WebClientRequestException e) {
-	    JOptionPane.showMessageDialog(this, e.getMessage(),
-		    "Error", JOptionPane.ERROR_MESSAGE);
-	} catch (WebClientResponseException ex) {
-	    JsonObject body = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
-	    if (body == null) {
-		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-		return;
-	    }
-	    if (body.has("Status")) {
-		String status = body.getAsJsonPrimitive("Status").getAsString();
-		JOptionPane.showMessageDialog(this, status, "Error", JOptionPane.ERROR_MESSAGE);
-		ApplicationContext.getLoginScreen().setVisible(true);
-		ApplicationContext.disposeMainScreen();
-	    } else {
-		JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
 
+    public void sendScore(int newScore) {
+	//update high score on server
+	final Screen thisScreen = this;
+	new Thread(() -> {
+	    try {
+		
+		JsonObject responseJson = APIUtils.updateHighScore(ApplicationContext.getToken(), newScore);
+		if (responseJson.has("high_score")) {
+		    screen.setHighScore(responseJson.getAsJsonPrimitive("high_score").getAsInt());
+		    thisScreen.updateUI();
+		}
+	    } catch (NullPointerException | WebClientRequestException e) {
+		JOptionPane.showMessageDialog(thisScreen, e.getMessage(),
+			"Error", JOptionPane.ERROR_MESSAGE);
+	    } catch (WebClientResponseException ex) {
+		JsonObject body = (JsonObject) JsonParser.parseString(ex.getResponseBodyAsString());
+		if (body == null) {
+		    JOptionPane.showMessageDialog(thisScreen, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		    return;
+		}
+		if (body.has("Status")) {
+		    String status = body.getAsJsonPrimitive("Status").getAsString();
+		    JOptionPane.showMessageDialog(thisScreen, status, "Error", JOptionPane.ERROR_MESSAGE);
+		    ApplicationContext.getLoginScreen().setVisible(true);
+		    ApplicationContext.disposeMainScreen();
+		} else {
+		    JOptionPane.showMessageDialog(thisScreen, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+		    
+		}
 	    }
-	}
+	}).start();
+		
     }
-    
+
     private void initUI() {
 	//set borders
 	screen.setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
@@ -161,13 +159,13 @@ public class Screen extends JFrame {
 	pnlHoldLayout.setAutoCreateGaps(true);
 
 	pnlHoldLayout.setVerticalGroup(pnlHoldLayout.createSequentialGroup()
-			.addComponent(lblHold)
-			.addComponent(getHold(), getHold().getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
+		.addComponent(lblHold)
+		.addComponent(getHold(), getHold().getPreferredSize().height, GroupLayout.PREFERRED_SIZE, getHeight())
 	);
 
 	pnlHoldLayout.setHorizontalGroup(pnlHoldLayout.createParallelGroup(GroupLayout.Alignment.CENTER)
-			.addComponent(lblHold)
-			.addComponent(getHold(), 100, GroupLayout.PREFERRED_SIZE, 150)
+		.addComponent(lblHold)
+		.addComponent(getHold(), 100, GroupLayout.PREFERRED_SIZE, 150)
 	);
 	pnlHold.setLayout(pnlHoldLayout);
 
@@ -231,16 +229,22 @@ public class Screen extends JFrame {
     }
 
     private void btnUserDetailsActionPerformed(java.awt.event.ActionEvent evt) {
+	// pause game
+	screen.pause();
+	btnStop.setText("Quit");
+
+	// hide this screen
 	this.setVisible(false);
-	this.screen.setPaused(true);
-	ApplicationContext.generateUserDetailsScreen();
-	// if an error has occurred with loading the screen, cancel
-	if( ApplicationContext.getUserDetails() == null)
-	    return;
+
+	// load user details screen
+	if (ApplicationContext.getUserDetails() == null) {
+	    ApplicationContext.generateUserDetailsScreen();
+	}
 	ApplicationContext.getUserDetails().setVisible(true);
     }
 
     private void btnStopActionPerformed(java.awt.event.ActionEvent evt) {
+
 	// when pause/quit button clicked
 	if (screen.isPaused()) {
 	    // if you click it when the game isnt playing dispose game
@@ -248,10 +252,12 @@ public class Screen extends JFrame {
 		ApplicationContext.getLoginScreen().setVisible(true);
 	    }
 	    ApplicationContext.disposeMainScreen();
+	    // release resources from audio inputstream
+	    MusicPlayer.releaseMusic();
 	} else {
 	    // if click it during play, just pause action
 	    btnStop.setText("Quit");
-	    screen.setPaused(true);
+	    screen.pause();
 	}
     }
 
@@ -261,19 +267,10 @@ public class Screen extends JFrame {
 	lblLines.setText(String.format("Lines: %d", screen.getLinesCleared()));
 	lblLevel.setText(String.format("Level: %d", screen.getLevel()));
 	lblHighscore.setText(String.format("High Score: %d", screen.getHighScore()));
-	
+
 	// update the puase/quit button
 	if (screen.isPaused()) {
 	    btnStop.setText("Quit");
-	}
-	if (!screen.isPaused()) {
-	    getNextPieceGrid().initTiles();
-	    getNextPieceGrid().drawTetrominoe(screen.getNextTetrominoe(), Math.floorDiv(getNextPieceGrid().getW(), 2), Math.floorDiv(getNextPieceGrid().getH(), 2));
-	    if (screen.getHold() != null) {
-		getHold().initTiles();
-		getHold().drawTetrominoe(screen.getHold(), Math.floorDiv(getHold().getW(), 2), Math.floorDiv(getHold().getH(), 2));
-	    }
-
 	}
 	// repaint components individually
 	// instead of repainting the whole panel, which would use unnecessary resources
@@ -287,9 +284,11 @@ public class Screen extends JFrame {
 
     private void btnPlayActionPerformed(java.awt.event.ActionEvent evt) {
 	// when play button clicked
-	screen.setPaused(false);
+
 	btnStop.setText("Pause");
+	// make the screen start playing
 	screen.requestFocus();
+	screen.resume();
 	// restart game if it is not in progress
 	if (!screen.isInSession()) {
 	    screen.restart();
@@ -311,6 +310,5 @@ public class Screen extends JFrame {
     public TetrisGrid getHold() {
 	return hold;
     }
-
 
 }
