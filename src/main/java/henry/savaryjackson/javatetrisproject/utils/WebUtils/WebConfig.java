@@ -27,7 +27,7 @@ import reactor.netty.http.client.HttpClient;
  */
 public class WebConfig {
 
-    public static final String trustStorePassword = "adulthood25";
+    public static final String trustStorePassword = System.getenv().get("tetris_trustore_password");
 
     public static WebClient getWebClient() {
 	return WebClient.builder().clientConnector(getClientHttpConnector()).build();

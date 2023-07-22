@@ -64,6 +64,7 @@ public class APIUtils {
 	int hashLength = 64;
 	int parallelism = 1;
 
+	// create builder
 	Argon2Parameters.Builder builder = new Argon2Parameters.Builder(Argon2Parameters.ARGON2_id)
 		.withIterations(iterations)
 		.withMemoryAsKB(memLimit)
@@ -73,6 +74,7 @@ public class APIUtils {
 	Argon2BytesGenerator generate = new Argon2BytesGenerator();
 	generate.init(builder.build());
 	byte[] result = new byte[hashLength];
+	
 	generate.generateBytes(rawPassword.getBytes(StandardCharsets.UTF_8), result, 0, result.length);
 	
 	String output = encode(result, builder.build());
@@ -177,15 +179,14 @@ public class APIUtils {
 	    throw new NullPointerException("Response entity is null");
 	}
 	// if successful so far, extract body from response
-	JsonObject responseBody = (JsonObject) JsonParser.parseString(response.getBody());
-
 	Logger.getGlobal().info(response.getBody());
     }
 
     public static JsonObject getInfo(String token) throws JsonSyntaxException, WebClientResponseException, NullPointerException {
+
+	
 	ResponseSpec request = WebClient.builder().build().get().uri(userInfoEndpoint)
-		.accept(MediaType.APPLICATION_JSON)
-		.header("tetris_token", token).retrieve();
+		.accept(MediaType.APPLICATION_JSON).header("token", token).retrieve();
 
 	ResponseEntity<String> response = request.toEntity(String.class).block();
 
@@ -247,9 +248,7 @@ public class APIUtils {
 		.retrieve();
 	
 	ResponseEntity<JsonObject> response  = request.toEntity(JsonObject.class).block();
-	
-	JsonObject responseBody = response.getBody();
-	
+
 	Logger.getGlobal().info(response.toString());
 	Logger.getGlobal().info(response.getStatusCode().toString());
     }
@@ -274,9 +273,6 @@ public class APIUtils {
 	if (response == null) {
 	    throw new NullPointerException("Response entity is null");
 	}
-	// if successful so far, extract body from response
-	JsonObject responseBody = (JsonObject) JsonParser.parseString(response.getBody());
-
 	Logger.getGlobal().info(response.getBody());
     }
 

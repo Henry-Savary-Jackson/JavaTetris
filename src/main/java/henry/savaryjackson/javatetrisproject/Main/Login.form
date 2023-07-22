@@ -94,6 +94,7 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="edtPasswordActionPerformed"/>
+        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="edtPasswordKeyPressed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JLabel" name="lblUsername">
@@ -112,6 +113,7 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="edtUsernameActionPerformed"/>
+        <EventHandler event="keyPressed" listener="java.awt.event.KeyListener" parameters="java.awt.event.KeyEvent" handler="edtUsernameKeyPressed"/>
       </Events>
     </Component>
     <Component class="javax.swing.JButton" name="btnSignIn">

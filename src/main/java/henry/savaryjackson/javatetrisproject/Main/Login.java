@@ -9,9 +9,13 @@ import com.google.gson.JsonParser;
 import javax.swing.SwingUtilities;
 import henry.savaryjackson.javatetrisproject.utils.WebUtils.APIUtils;
 import henry.savaryjackson.javatetrisproject.GUI.ApplicationContext;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.KeyEvent;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
@@ -67,6 +71,11 @@ public class Login extends javax.swing.JFrame implements ComponentListener {
                 edtPasswordActionPerformed(evt);
             }
         });
+        edtPassword.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                edtPasswordKeyPressed(evt);
+            }
+        });
 
         lblUsername.setFont(new java.awt.Font("Futura", 1, 18)); // NOI18N
         lblUsername.setText("Username:");
@@ -75,6 +84,11 @@ public class Login extends javax.swing.JFrame implements ComponentListener {
         edtUsername.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 edtUsernameActionPerformed(evt);
+            }
+        });
+        edtUsername.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyPressed(java.awt.event.KeyEvent evt) {
+                edtUsernameKeyPressed(evt);
             }
         });
 
@@ -310,6 +324,19 @@ public class Login extends javax.swing.JFrame implements ComponentListener {
         }
 	
     }//GEN-LAST:event_jCheckBox1ItemStateChanged
+
+    private void edtUsernameKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_edtUsernameKeyPressed
+	if (evt.getKeyCode() == KeyEvent.VK_ENTER){
+	    btnSignIn.doClick();
+	}
+    }//GEN-LAST:event_edtUsernameKeyPressed
+
+    private void edtPasswordKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_edtPasswordKeyPressed
+        // TODO add your handling code here:
+	if (evt.getKeyCode() == KeyEvent.VK_ENTER){
+	    btnSignIn.doClick();
+	}
+    }//GEN-LAST:event_edtPasswordKeyPressed
 
     private void startGame(String token) {
 	

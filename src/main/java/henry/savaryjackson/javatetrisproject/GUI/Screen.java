@@ -6,6 +6,7 @@ package henry.savaryjackson.javatetrisproject.GUI;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import henry.savaryjackson.javatetrisproject.utils.AudioUtils.MP3Player;
 import henry.savaryjackson.javatetrisproject.utils.AudioUtils.MusicPlayer;
 import henry.savaryjackson.javatetrisproject.utils.WebUtils.APIUtils;
 import java.awt.Color;
@@ -49,7 +50,7 @@ public class Screen extends JFrame {
     public Screen() {
 	super("Tetris");
 
-	MusicPlayer.setUpClip();
+	MusicPlayer.setUp();
 
 	//init tetris grids
 	grid = new TetrisGrid(6, 6);
@@ -230,6 +231,7 @@ public class Screen extends JFrame {
 
     private void btnUserDetailsActionPerformed(java.awt.event.ActionEvent evt) {
 	// pause game
+	MusicPlayer.pauseMusic();
 	screen.pause();
 	btnStop.setText("Quit");
 
@@ -253,9 +255,10 @@ public class Screen extends JFrame {
 	    }
 	    ApplicationContext.disposeMainScreen();
 	    // release resources from audio inputstream
-	    MusicPlayer.releaseMusic();
+	    MusicPlayer.endMusic();
 	} else {
 	    // if click it during play, just pause action
+	    MusicPlayer.pauseMusic();
 	    btnStop.setText("Quit");
 	    screen.pause();
 	}
@@ -284,7 +287,10 @@ public class Screen extends JFrame {
 
     private void btnPlayActionPerformed(java.awt.event.ActionEvent evt) {
 	// when play button clicked
-
+	if( screen.isPaused() && screen.isInSession()){
+	    MusicPlayer.resumeMusic();
+	}
+	
 	btnStop.setText("Pause");
 	// make the screen start playing
 	screen.requestFocus();
@@ -292,9 +298,10 @@ public class Screen extends JFrame {
 	// restart game if it is not in progress
 	if (!screen.isInSession()) {
 	    screen.restart();
+	    MusicPlayer.playMusic();
+	    screen.setInSession(true);
 	}
-	screen.setInSession(true);
-
+	
     }
 
     /**

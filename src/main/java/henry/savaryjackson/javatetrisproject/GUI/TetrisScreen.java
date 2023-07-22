@@ -201,12 +201,10 @@ public class TetrisScreen extends TetrisGrid implements KeyListener {
     
     public void resume(){
 	paused = false;
-	MusicPlayer.playMusic();
     }
     
     public void pause(){
 	paused = true;
-	MusicPlayer.pauseMusic();
     }
 
     //generates the delay between falling updates depending on the level the user is on.
